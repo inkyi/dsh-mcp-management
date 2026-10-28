@@ -1,5 +1,6 @@
 # OS / editor noise
 .DS_Store
+._*
 Thumbs.db
 *.swp
 *~
@@ -21,3 +22,7 @@ coverage/
 .env
 .env.*
 !.env.example
+
+# Release artifacts and local npm configuration
+*.tgz
+.npmrc
