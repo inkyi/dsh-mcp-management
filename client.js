@@ -45,6 +45,7 @@ window.__ModuleLoader__.load({
 			"error.saveFailed": "The change was not saved. The deployment rejected it; try again.",
 			"error.busy": "Another change is still being applied. Wait for it to finish.",
 			"error.pickFailed": "The directory picker failed. Choose a workspace directory and try again.",
+			"error.notAbsolute": "Enter an absolute directory path, such as /Users/you/project.",
 			"defaults.title": "Global default servers",
 			"defaults.hint":
 				"Used by every session unless a workspace or its .dsh/mcp.json overrides the same server name.",
@@ -55,6 +56,15 @@ window.__ModuleLoader__.load({
 				"Sessions started in a workspace directory see the servers of that workspace plus the global defaults.",
 			"workspaces.empty": "No workspaces yet.",
 			"workspaces.add": "Add workspace",
+			"addWorkspace.title": "Add workspace",
+			"addWorkspace.hint":
+				"This browser has no in-window directory chooser. Paste the project directory's absolute path, or pick a workspace that is already registered in the sidebar.",
+			"addWorkspace.pathLabel": "Directory path",
+			"addWorkspace.pathPlaceholder": "/Users/you/project",
+			"addWorkspace.existing": "Or pick an existing workspace",
+			"addWorkspace.existingEmpty": "No other registered workspaces to pick.",
+			"addWorkspace.submit": "Add",
+			"addWorkspace.saving": "Adding…",
 			"workspaces.picking": "Choosing a directory…",
 			"workspaces.remove": "Remove workspace",
 			"workspaces.removeConfirm":
@@ -100,6 +110,7 @@ window.__ModuleLoader__.load({
 			"field.failOnStartupError": "Fail the session when this server cannot start",
 			"field.failOnStartupErrorHint": "Off by default: a broken MCP server never blocks the session.",
 			"common.dismiss": "Dismiss",
+			"common.cancel": "Cancel",
 		};
 		/** Simplified Chinese copy. */
 		const zh = {
@@ -119,6 +130,7 @@ window.__ModuleLoader__.load({
 			"error.saveFailed": "更改未保存：本部署拒绝了写入，请重试。",
 			"error.busy": "还有更改正在应用，请等待完成。",
 			"error.pickFailed": "目录选择失败，请重试。",
+			"error.notAbsolute": "请输入目录的绝对路径，例如 /Users/你/项目。",
 			"defaults.title": "全局默认服务器",
 			"defaults.hint": "所有会话都可使用；工作区或 .dsh/mcp.json 中的同名服务器会覆盖它。",
 			"defaults.empty": "还没有全局默认服务器。",
@@ -127,6 +139,15 @@ window.__ModuleLoader__.load({
 			"workspaces.hint": "在工作区目录中启动的会话可以使用该工作区的服务器，以及全局默认服务器。",
 			"workspaces.empty": "还没有工作区。",
 			"workspaces.add": "添加工作区",
+			"addWorkspace.title": "添加工作区",
+			"addWorkspace.hint":
+				"当前浏览器中没有可用的系统目录选择器。请粘贴项目目录的绝对路径，或从左侧栏已注册的工作区中选择。",
+			"addWorkspace.pathLabel": "目录路径",
+			"addWorkspace.pathPlaceholder": "/Users/你/项目",
+			"addWorkspace.existing": "或选择已有工作区",
+			"addWorkspace.existingEmpty": "没有其他已注册的工作区。",
+			"addWorkspace.submit": "添加",
+			"addWorkspace.saving": "添加中…",
 			"workspaces.picking": "正在选择目录…",
 			"workspaces.remove": "移除工作区",
 			"workspaces.removeConfirm": "从列表中移除工作区「{path}」？其 MCP 服务器配置会一并移除，会话历史不受影响。",
@@ -169,6 +190,7 @@ window.__ModuleLoader__.load({
 			"field.failOnStartupError": "服务器无法启动时使会话失败",
 			"field.failOnStartupErrorHint": "默认关闭：MCP 服务器故障不会阻断会话。",
 			"common.dismiss": "关闭",
+			"common.cancel": "取消",
 		};
 		//#endregion
 		//#region value helpers
@@ -261,10 +283,9 @@ window.__ModuleLoader__.load({
 		* The Electron desktop preload exposes a native chooser that runs as an
 		* app-modal sheet owned by this window (`__DSH_DIRECTORY_PICKER__.pick()`),
 		* so its sidebar shortcuts stay interactive. Opening the Host remote picker
-		* instead spawns a separate `osascript` helper whose panel is owned by that
-		* process — its sidebar can ignore clicks. Prefer the in-window bridge, and
-		* fall back to the Host remote picker for a plain browser or a future host
-		* that has no preload bridge.
+		* in a plain browser spawns a separate `osascript` helper whose panel is
+		* owned by that process — its sidebar can ignore clicks — so the page only
+		* uses this function when the in-window bridge exists.
 		* @param ctx - browser plugin context carrying `uiWorkspace`.
 		* @returns the picked absolute path, or null when the operator cancels.
 		*/
@@ -276,6 +297,22 @@ window.__ModuleLoader__.load({
 			}
 			const picked = await ctx.uiWorkspace.pickDirectory();
 			return typeof picked === "string" && picked.trim().length > 0 ? picked : null;
+		}
+		/** Whether the preload bridge for the in-window native chooser is available. */
+		function hasNativeBridge() {
+			const bridge = globalThis.__DSH_DIRECTORY_PICKER__;
+			return bridge !== undefined && bridge !== null && typeof bridge.pick === "function";
+		}
+		/**
+		* Whether a value is an absolute POSIX or Windows path. The Host resolves a
+		* relative path against it own process directory, which is never what the
+		* operator means, so the page refuses those.
+		* @param value - candidate directory path.
+		* @returns true for an absolute path.
+		*/
+		function isAbsolutePath(value) {
+			const path = trimPath(value);
+			return /^\//.test(path) || /^[A-Za-z]:[\\/]/.test(path);
 		}
 		/** Build the complete ServerConfig the Host schema expects from an editor draft. */
 		function serverFromDraft(draft) {
@@ -372,6 +409,8 @@ window.__ModuleLoader__.load({
 			tail = Promise.resolve();
 			pending = 0;
 			picking = false;
+			/** True while the browser-side add-workspace dialog is open. */
+			addOpen = false;
 			error = null;
 			disposed = false;
 			constructor(ctx, form) {
@@ -398,6 +437,7 @@ window.__ModuleLoader__.load({
 					writable: snapshot?.writable === true,
 					busy: this.pending > 0,
 					picking: this.picking,
+					addOpen: this.addOpen,
 					error: this.error,
 					defaults: value.defaults,
 					workspaces: value.workspaces,
@@ -413,6 +453,7 @@ window.__ModuleLoader__.load({
 					previous.writable === next.writable &&
 					previous.busy === next.busy &&
 					previous.picking === next.picking &&
+					previous.addOpen === next.addOpen &&
 					previous.error === next.error &&
 					previous.defaults === next.defaults &&
 					previous.workspaces === next.workspaces
@@ -534,12 +575,36 @@ window.__ModuleLoader__.load({
 				});
 			}
 			/**
-			* Pick a directory and append it as a workspace. The chooser resolves
-			* `null` when the operator cancels, which is not an error.
-			* Prefers the in-window Electron bridge (app-modal sheet with a working
-			* sidebar) and falls back to the Host remote picker in a plain browser.
+			* Start adding a workspace.
+			*
+			* In the desktop app the preload bridge opens the in-window native
+			* chooser in one step, exactly like the app's own add-workspace flow. A
+			* plain browser has no such bridge, and the Host's macOS helper panel can
+			* ignore clicks on its sidebar shortcuts, so there the page opens its own
+			* dialog: paste an absolute path, or pick an already-registered workspace.
+			* @returns settlement; the dialog path resolves once the dialog opens.
 			*/
 			async addWorkspace() {
+				if (this.disposed) return { ok: false, error: "error.saveFailed" };
+				if (hasNativeBridge()) return this.addWorkspaceFromSystemChooser();
+				return this.openAddWorkspaceDialog();
+			}
+			/** Open the browser-side add-workspace dialog. */
+			openAddWorkspaceDialog() {
+				if (this.disposed) return { ok: false, error: "error.saveFailed" };
+				this.addOpen = true;
+				this.publish();
+				return { ok: true };
+			}
+			/** Close the browser-side add-workspace dialog without changes. */
+			closeAddWorkspaceDialog() {
+				if (!this.addOpen) return { ok: true };
+				this.addOpen = false;
+				this.publish();
+				return { ok: true };
+			}
+			/** Run the in-window native chooser and append the picked directory. */
+			async addWorkspaceFromSystemChooser() {
 				if (this.disposed) return { ok: false, error: "error.saveFailed" };
 				if (this.picking) return { ok: false, error: "error.busy" };
 				this.picking = true;
@@ -555,7 +620,23 @@ window.__ModuleLoader__.load({
 				this.picking = false;
 				this.publish();
 				if (typeof picked !== "string" || picked.trim().length === 0) return { ok: true };
-				const path = trimPath(picked.trim());
+				return this.appendWorkspace(trimPath(picked.trim()));
+			}
+			/**
+			* Append one directory typed into (or chosen from) the add-workspace dialog.
+			* @param candidate - absolute directory path.
+			* @returns settlement; invalid paths fail with `error.notAbsolute`.
+			*/
+			submitWorkspacePath(candidate) {
+				if (this.disposed) return Promise.resolve({ ok: false, error: "error.saveFailed" });
+				const path = trimPath(text(candidate));
+				if (path.length === 0 || !isAbsolutePath(path)) return Promise.resolve(this.fail("error.notAbsolute"));
+				this.addOpen = false;
+				this.publish();
+				return this.appendWorkspace(path);
+			}
+			/** Queue the write that appends one workspace entry. */
+			appendWorkspace(path) {
 				return this.execute((current) => {
 					if (findWorkspaceIndex(current.workspaces, path) >= 0) return { error: "error.workspaceExists" };
 					const next = current.workspaces.slice();
@@ -604,6 +685,8 @@ window.__ModuleLoader__.load({
 					removeServer: (scope, index) => this.removeServer(scope, index),
 					setServerEnabled: (scope, index, enabled) => this.setServerEnabled(scope, index, enabled),
 					addWorkspace: () => this.addWorkspace(),
+					submitWorkspacePath: (path) => this.submitWorkspacePath(path),
+					closeAddWorkspace: () => this.closeAddWorkspaceDialog(),
 					removeWorkspace: (path) => this.removeWorkspace(path),
 					renameWorkspace: (path, title) => this.renameWorkspace(path, title),
 					clearError: () => this.clearError(),
@@ -680,6 +763,13 @@ window.__ModuleLoader__.load({
 .mcpw-modal-footer{display:flex;justify-content:flex-end;gap:8px;padding-top:12px;border-top:0.5px solid var(--dsw-alias-border-l2)}
 .mcpw-status{min-height:17px;color:var(--dsw-alias-label-secondary);font-size:11.5px;line-height:17px}
 .mcpw-actions-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.mcpw-pick-list{display:grid;gap:6px;max-height:220px;overflow:auto}
+.mcpw-pick-item{display:grid;gap:1px;text-align:left;appearance:none;border:0.5px solid var(--dsw-alias-border-l1);background:transparent;color:var(--dsw-alias-label-primary);border-radius:7px;padding:7px 10px;font:inherit;font-size:12.5px;line-height:18px;cursor:pointer}
+.mcpw-pick-item:hover:not(:disabled){background:var(--dsw-alias-bg-layer-1)}
+.mcpw-pick-item:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px}
+.mcpw-pick-item:disabled{opacity:0.45;cursor:default}
+.mcpw-pick-title{font-weight:500}
+.mcpw-pick-path{color:var(--dsw-alias-label-secondary);font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 `;
 		//#endregion
 		//#region UI atoms
@@ -962,6 +1052,168 @@ window.__ModuleLoader__.load({
 		}
 		//#endregion
 		//#region server editor
+		/**
+		* The browser-side add-workspace dialog: paste an absolute path or pick an
+		* already-registered workspace. Opened when the desktop native chooser
+		* bridge is absent (a plain browser tab). Closed with Escape, Cancel, or a
+		* backdrop click.
+		*/
+		function AddWorkspaceDialog(props) {
+			const { t, existing, configured, busy, onSubmit, onClose } = props;
+			const [draft, setDraft] = React.useState("");
+			const [errorKey, setErrorKey] = React.useState(null);
+			const [saving, setSaving] = React.useState(false);
+			React.useEffect(() => {
+				const onKeyDown = (event) => {
+					if (event.key !== "Escape") return;
+					event.stopPropagation();
+					onClose();
+				};
+				window.addEventListener("keydown", onKeyDown);
+				return () => {
+					window.removeEventListener("keydown", onKeyDown);
+				};
+			}, [onClose]);
+			React.useEffect(() => {
+				const body = document.body;
+				const previous = body.style.overflow;
+				body.style.overflow = "hidden";
+				return () => {
+					body.style.overflow = previous;
+				};
+			}, []);
+			const configuredKeys = new Set(
+				stringList(configured)
+					.filter((workspace) => workspace !== null && typeof workspace === "object" && typeof workspace.path === "string")
+					.map((workspace) => pathKey(workspace.path)),
+			);
+			const candidates = stringList(existing).filter(
+				(item) =>
+					item !== null &&
+					typeof item === "object" &&
+					typeof item.path === "string" &&
+					item.path.length > 0 &&
+					!configuredKeys.has(pathKey(item.path)),
+			);
+			const submit = async (value) => {
+				if (saving) return;
+				const path = trimPath(text(value));
+				if (path.length === 0 || !isAbsolutePath(path)) {
+					setErrorKey("error.notAbsolute");
+					return;
+				}
+				setSaving(true);
+				setErrorKey(null);
+				try {
+					const result = typeof onSubmit === "function" ? await onSubmit(path) : { ok: false, error: "error.saveFailed" };
+					if (result !== null && typeof result === "object" && result.ok === false) {
+						setErrorKey(typeof result.error === "string" ? result.error : "error.saveFailed");
+						setSaving(false);
+						return;
+					}
+					onClose();
+				} catch (error) {
+					console.warn("[mcp-workspaces] adding workspace failed:", error);
+					setErrorKey("error.saveFailed");
+					setSaving(false);
+				}
+			};
+			const disabled = saving || busy === true;
+			return h(
+				"div",
+				{
+					className: "mcpw-backdrop",
+					onMouseDown: (event) => {
+						if (event.target === event.currentTarget) onClose();
+					},
+				},
+				h(
+					"div",
+					{
+						className: "mcpw-modal",
+						role: "dialog",
+						"aria-modal": "true",
+						"aria-labelledby": "mcpw-add-workspace-title",
+					},
+					h("h2", { id: "mcpw-add-workspace-title", className: "mcpw-modal-title" }, t("addWorkspace.title")),
+					h(
+						"div",
+						{ className: "mcpw-modal-body" },
+						errorKey === null
+							? null
+							: h("div", { className: "mcpw-banner mcpw-banner--error", role: "alert" }, h("span", {}, t(errorKey))),
+						h("p", { className: "mcpw-hint" }, t("addWorkspace.hint")),
+						h(
+							Field,
+							{ label: t("addWorkspace.pathLabel"), htmlFor: "mcpw-add-workspace-path" },
+							h("input", {
+								id: "mcpw-add-workspace-path",
+								className: "mcpw-input",
+								type: "text",
+								value: draft,
+								disabled,
+								autoFocus: true,
+								spellCheck: false,
+								placeholder: t("addWorkspace.pathPlaceholder"),
+								onChange: (event) => {
+									setDraft(event.target.value);
+									if (errorKey !== null) setErrorKey(null);
+								},
+								onKeyDown: (event) => {
+									if (event.key !== "Enter") return;
+									event.preventDefault();
+									void submit(draft);
+								},
+							}),
+						),
+						h(
+							"div",
+							{ className: "mcpw-field" },
+							h("div", { className: "mcpw-field-label" }, t("addWorkspace.existing")),
+							candidates.length === 0
+								? h("div", { className: "mcpw-hint" }, t("addWorkspace.existingEmpty"))
+								: h(
+										"div",
+										{ className: "mcpw-pick-list" },
+										candidates.map((item) =>
+											h(
+												"button",
+												{
+													key: String(item.workspaceId ?? item.path),
+													type: "button",
+													className: "mcpw-pick-item",
+													disabled,
+													onClick: () => {
+														void submit(item.path);
+													},
+												},
+												h(
+													"span",
+													{ className: "mcpw-pick-title" },
+													typeof item.title === "string" && item.title.length > 0 ? item.title : baseName(item.path),
+												),
+												h("span", { className: "mcpw-pick-path" }, item.path),
+											),
+										),
+									),
+						),
+					),
+					h(
+						"div",
+						{ className: "mcpw-modal-footer" },
+						h(Button, { label: t("common.cancel"), disabled: saving, onClick: onClose }),
+						h(Button, {
+							label: saving ? t("addWorkspace.saving") : t("addWorkspace.submit"),
+							variant: "primary",
+							disabled,
+							onClick: () => {
+								void submit(draft);
+							},
+						}),
+					),
+				),
+			);
+		}
 		/** The add/edit server modal, closed with Escape, the cancel button, or a backdrop click. */
 		function ServerEditor(props) {
 			const { t, mode, server, onSave, onClose } = props;
@@ -1214,6 +1466,10 @@ window.__ModuleLoader__.load({
 		function selectSnapshot(snapshot) {
 			return snapshot;
 		}
+		/** Selector for the standard `useWorkspaces` hook: the registered workspace list. */
+		function selectWorkspaceItems(snapshot) {
+			return snapshot !== null && typeof snapshot === "object" && Array.isArray(snapshot.items) ? snapshot.items : EMPTY_LIST;
+		}
 		/** The Settings → MCP Workspaces page. */
 		function Page(props) {
 			const t = typeof props.t === "function" ? props.t : (key) => key;
@@ -1221,6 +1477,8 @@ window.__ModuleLoader__.load({
 			// The injected hook exists for the whole lifetime of this page; the guard is
 			// only a defensive fallback for a partially composed deployment.
 			const state = typeof useSnapshot === "function" ? useSnapshot(selectSnapshot) : NO_STATE;
+			// Standard settings-section prop: registered workspaces, offered as quick picks.
+			const workspaceItems = typeof props.useWorkspaces === "function" ? props.useWorkspaces(selectWorkspaceItems) : EMPTY_LIST;
 			const [editor, setEditor] = React.useState(null);
 			const openEditor = React.useCallback((scope, index, server) => {
 				setEditor({ scope, index: index === void 0 ? null : index, server: server === void 0 ? null : server });
@@ -1279,6 +1537,14 @@ window.__ModuleLoader__.load({
 					if (typeof props.addWorkspace === "function") return props.addWorkspace();
 					return Promise.resolve({ ok: false });
 				},
+				submitWorkspacePath: (path) => {
+					if (typeof props.submitWorkspacePath === "function") return props.submitWorkspacePath(path);
+					return Promise.resolve({ ok: false });
+				},
+				closeAddWorkspace: () => {
+					if (typeof props.closeAddWorkspace === "function") return props.closeAddWorkspace();
+					return Promise.resolve({ ok: true });
+				},
 				removeWorkspace: (path) => {
 					if (typeof props.removeWorkspace === "function") return props.removeWorkspace(path);
 					return Promise.resolve({ ok: false });
@@ -1288,6 +1554,19 @@ window.__ModuleLoader__.load({
 					return Promise.resolve({ ok: false });
 				},
 			};
+			const addDialog =
+				ready && state.addOpen === true
+					? h(AddWorkspaceDialog, {
+							t,
+							existing: workspaceItems,
+							configured: state.workspaces,
+							busy: state.busy === true,
+							onSubmit: actions.submitWorkspacePath,
+							onClose: () => {
+								void actions.closeAddWorkspace();
+							},
+						})
+					: null;
 			return h(
 				"div",
 				{ className: "mcpw-root" },
@@ -1300,6 +1579,7 @@ window.__ModuleLoader__.load({
 					h("p", { className: "mcpw-hint" }, t("fileHint")),
 				),
 				banners,
+				addDialog,
 				ready
 					? h(
 							React.Fragment,

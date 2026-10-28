@@ -89,7 +89,9 @@ Uninstall with `plugin_manager action=remove_bundle target=dsh-plugin-mcp-manage
 
 ### Settings page
 
-1. **Add workspace** → pick the project directory.
+1. **Add workspace**. In the desktop app this opens the native chooser; in a plain browser (the
+   `dsh web` page, which has no in-window chooser bridge) it opens an in-page dialog where you
+   paste an absolute directory path or pick a workspace already registered in the sidebar.
 2. **Add server** inside that workspace, for example:
    - name `idea`, transport `streamable-http`, URL `http://127.0.0.1:64343/stream`,
      *fail on startup error* off (the IDE is not always running);

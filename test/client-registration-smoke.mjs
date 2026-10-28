@@ -13,8 +13,9 @@
  *      and that zh/en leaf keys match,
  *   4. asserts the `settings.section` slot registration (id/order/locale/label),
  *   5. checks every `t("key")` reference in client.js exists in the dictionaries,
- *   6. asserts workspace add prefers the in-window Electron chooser bridge and
- *      falls back to the Host remote picker when the bridge is absent.
+ *   6. asserts workspace add prefers the in-window Electron chooser bridge and,
+ *      without that bridge, opens the page's own path/existing-workspace dialog
+ *      instead of the unusable Host picker.
  *
  * This is NOT a render test: React components are never mounted.
  *
@@ -204,7 +205,7 @@ try {
   assert.equal(typeof injected.hooks.mcpWorkspaces.getSnapshot, 'function')
   assert.equal(typeof injected.hooks.mcpWorkspaces.subscribe, 'function')
   assert.equal(injected.hooks.mcpWorkspaces.getSnapshot().status, 'ready')
-  for (const action of ['saveServer', 'removeServer', 'setServerEnabled', 'addWorkspace', 'removeWorkspace', 'renameWorkspace', 'clearError']) {
+  for (const action of ['saveServer', 'removeServer', 'setServerEnabled', 'addWorkspace', 'submitWorkspacePath', 'closeAddWorkspace', 'removeWorkspace', 'renameWorkspace', 'clearError']) {
     assert.equal(typeof injected[action], 'function', `slot inject() must expose action ${action}`)
   }
 
@@ -236,16 +237,30 @@ try {
   assert.equal(bridgeWrite.field, 'workspaces')
   assert.deepEqual(bridgeWrite.value.map((workspace) => workspace.path), ['/tmp/bridge-ws'])
   assert.equal(bridgeWrite.value[0].title, 'bridge-ws')
+  assert.notEqual(injected.hooks.mcpWorkspaces.getSnapshot().addOpen, true, 'the desktop bridge path must not open the dialog')
 
+  // 5. Without the bridge (a plain browser tab) the page must NOT call the Host
+  //    picker; it opens its own dialog, which accepts an absolute path and
+  //    ignores a relative one.
   delete globalThis.__DSH_DIRECTORY_PICKER__
   nextRemotePick = '/tmp/remote-ws'
-  const fallbackOutcome = await injected.addWorkspace()
-  assert.equal(fallbackOutcome.ok, true, 'fallback addWorkspace must succeed')
-  assert.equal(remotePicks.length, 1, 'addWorkspace must fall back to the Host remote picker')
+  const dialogOutcome = await injected.addWorkspace()
+  assert.equal(dialogOutcome.ok, true, 'browser addWorkspace must succeed')
+  assert.equal(remotePicks.length, 0, 'browser addWorkspace must not call the Host picker')
+  assert.equal(injected.hooks.mcpWorkspaces.getSnapshot().addOpen, true, 'browser addWorkspace must open the dialog')
+
+  const invalidOutcome = await injected.submitWorkspacePath('relative/path')
+  assert.equal(invalidOutcome.ok, false, 'a relative path must be refused')
+  assert.equal(invalidOutcome.error, 'error.notAbsolute')
+  assert.equal(formWrites.length, 1, 'an invalid path must not write configuration')
+
+  const fallbackOutcome = await injected.submitWorkspacePath('/tmp/remote-ws')
+  assert.equal(fallbackOutcome.ok, true, 'submitting an absolute path must succeed')
   const fallbackWrite = formWrites.at(-1)
   assert.deepEqual(fallbackWrite.value.map((workspace) => workspace.path), ['/tmp/bridge-ws', '/tmp/remote-ws'])
+  assert.notEqual(injected.hooks.mcpWorkspaces.getSnapshot().addOpen, true, 'a successful add must close the dialog')
 
-  // 5. Disposers returned by apply's effects must be callable without throwing.
+  // 6. Disposers returned by apply's effects must be callable without throwing.
   for (const disposer of disposers) disposer()
 
   console.log(JSON.stringify({
@@ -265,7 +280,7 @@ try {
       actions: Object.keys(injected).filter((key) => key !== 'hooks'),
     },
     tKeysChecked: usedKeys.size,
-    directoryPicker: { bridgePreferred: true, fallbackToHost: true, writes: formWrites.length },
+    directoryPicker: { bridgePreferred: true, browserDialog: true, writes: formWrites.length },
     note: 'registration path only — React components were not rendered',
   }, null, 2))
 } finally {

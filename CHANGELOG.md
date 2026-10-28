@@ -28,10 +28,13 @@ Initial release.
 
 ### Fixed
 
-- Adding a workspace now opens the directory chooser through the desktop preload
-  bridge (`__DSH_DIRECTORY_PICKER__.pick()`), the same app-modal sheet the Harness's own
-  add-workspace flow uses, so the native dialog's sidebar shortcuts stay clickable. A plain
-  browser (no bridge) still falls back to the Host remote picker.
+- Adding a workspace in the desktop app now opens the directory chooser through the desktop
+  preload bridge (`__DSH_DIRECTORY_PICKER__.pick()`), the same app-modal sheet the Harness's own
+  add-workspace flow uses, so the native dialog's sidebar shortcuts stay clickable.
+- In a plain browser (the `dsh web` page, where that bridge does not exist), **Add workspace**
+  opens an in-page dialog instead of the Host's macOS helper panel: paste an absolute directory
+  path, or pick a workspace already registered in the sidebar. The Host's helper panel could ignore
+  clicks on its sidebar shortcuts, which made the old flow unusable there.
 
 ### Notes
 
