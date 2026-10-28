@@ -1,0 +1,64 @@
+{
+  "name": "dsh-plugin-mcp-workspaces",
+  "version": "1.0.0",
+  "description": "Workspace-scoped MCP servers for DeepSeek Harness: each project directory gets its own MCP tools.",
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "cordis",
+    "plugin",
+    "mcp",
+    "model-context-protocol",
+    "workspace"
+  ],
+  "license": "MIT",
+  "author": "YOUR_GITHUB_USERNAME",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YOUR_GITHUB_USERNAME/dsh-plugin-mcp-workspaces.git"
+  },
+  "homepage": "https://github.com/YOUR_GITHUB_USERNAME/dsh-plugin-mcp-workspaces#readme",
+  "bugs": {
+    "url": "https://github.com/YOUR_GITHUB_USERNAME/dsh-plugin-mcp-workspaces/issues"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "check": "node test/check.mjs",
+    "test": "node test/check.mjs && node --test test/unit.test.mjs",
+    "fixture": "node test/fixture-smoke.mjs",
+    "sdk-smoke": "node test/sdk-connect-smoke.mjs"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg",
+    "vendor/*.mjs",
+    "vendor/LICENSE*.txt"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-settings",
+        "@deepseek-ai/dsh-client-ui-settings-general",
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-api-remotes"
+      ]
+    }
+  }
+}

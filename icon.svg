@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Workspace MCP">
+  <defs>
+    <linearGradient id="wsmcp-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2f6fed"/>
+      <stop offset="1" stop-color="#6b46f0"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="56" height="56" rx="14" fill="url(#wsmcp-bg)"/>
+  <path d="M16 25c0-2.2 1.8-4 4-4h7l4 4h13c2.2 0 4 1.8 4 4v13c0 2.2-1.8 4-4 4H20c-2.2 0-4-1.8-4-4z" fill="#ffffff" opacity="0.94"/>
+  <circle cx="26" cy="34" r="3.4" fill="#2f6fed"/>
+  <circle cx="38" cy="34" r="3.4" fill="#2f6fed"/>
+  <circle cx="32" cy="42.5" r="3.4" fill="#6b46f0"/>
+  <path d="M26 34L32 42.5L38 34" fill="none" stroke="#2f6fed" stroke-width="1.8" stroke-linecap="round"/>
+</svg>

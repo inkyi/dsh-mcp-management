@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: node ${{ matrix.node }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      # The plugin is plain ESM with no build step and no npm dependencies.
+      - name: Static bundle checks
+        run: node test/check.mjs
+
+      - name: Pure-logic unit tests
+        run: node --test test/unit.test.mjs
+
+      - name: MCP stdio fixture smoke (hand-rolled JSON-RPC client)
+        run: node test/fixture-smoke.mjs
+
+      - name: Client registration smoke (no browser)
+        run: node test/client-registration-smoke.mjs
+
+      # Optional: skips with exit 0 when no @modelcontextprotocol/client build
+      # is reachable (real DSH installation or MCP_SDK_ROOT).
+      - name: Real MCP SDK handshake smoke
+        run: node test/sdk-connect-smoke.mjs

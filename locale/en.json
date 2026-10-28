@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "MCP Management",
+    "description": "Give each workspace its own MCP servers. A session only sees the MCP tools configured for the workspace it runs in."
+  }
+}

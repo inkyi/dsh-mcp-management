@@ -1,0 +1,23 @@
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.idea/
+.vscode/
+
+# Dependencies (the plugin itself has none; tests may add local links)
+node_modules/
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# Test scratch output
+test/tmp/
+coverage/
+*.log
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
