@@ -23,8 +23,9 @@ Validates the bundle wiring that a typo would otherwise only expose at install t
 
 - required files (`index.js`, `client.js`, `package.json`, `cordis.patch.yml`, locales, `icon.svg`,
   `LICENSE`, `README.md`) exist and are non-empty;
-- `package.json`: name, `type: module`, MIT license, GitHub repository, semver version, exports map,
-  `files` list, and the `dsh.bundle.patch` / `dsh.client` declarations;
+- `package.json`: name, `type: module`, MIT license, GitHub repository, semver version, top-level
+  `icon`, exports map (including `./package.json`), `files` list, `engines.node` / `engines.dsh`, and
+  the `dsh.manifestVersion` / `dsh.bundle.patch` / `dsh.client` declarations;
 - `cordis.patch.yml`: an `- insert:` row with `id: mcp-management` and `name: dsh-mcp-management`;
 - locale dictionaries parse, carry non-empty `meta.title`/`meta.description`, and share the same key
   set across languages;

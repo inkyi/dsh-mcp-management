@@ -30,6 +30,8 @@
 已固定的标识：
 
 - 包名 `dsh-mcp-management`
+- `package.json` 清单元数据：`dsh.manifestVersion: 1`、`dsh.bundle.patch`、`dsh.client`、
+  `engines.dsh`、`exports["./package.json"]`、顶层 `icon` 字段
 - Loader entry id：`mcp-management`（设置页通过这个 id 读写 config）
 - 设置页 slot：`settings.section`，注册 id `mcp-management`，order `16`
 - 设置页 locale namespace：`settings.mcpManagement`

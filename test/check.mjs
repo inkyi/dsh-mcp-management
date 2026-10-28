@@ -3,7 +3,8 @@
  * Static contract checks for the dsh-mcp-management bundle.
  *
  * Verifies the files/metadata that do NOT require a running DSH Host:
- *   - package.json fields (name/type/exports/files/dsh.bundle.patch/dsh.client)
+ *   - package.json fields (name/type/exports/files/icon/engines and the
+ *     dsh.manifestVersion / dsh.bundle.patch / dsh.client declarations)
  *   - cordis.patch.yml entry id + package name
  *   - locale/en.json + locale/zh.json have meta.title / meta.description
  *   - icon.svg parses (xmllint when available, lightweight fallback) and is < 256 KiB
@@ -116,6 +117,7 @@ if (pkg !== undefined) {
   const expectedExports = [
     ['.', './index.js'],
     ['./client', './client.js'],
+    ['./package.json', './package.json'],
     ['./locale/*.json', './locale/*.json'],
     ['./icon', './icon.svg'],
   ]
@@ -125,6 +127,14 @@ if (pkg !== undefined) {
     else fail(`package.json exports[${JSON.stringify(key)}]`, `expected ${target}, got ${JSON.stringify(actual)}`)
   }
 
+  expectField('icon', pkg.icon, './icon.svg')
+
+  const engines = pkg.engines !== null && typeof pkg.engines === 'object' ? pkg.engines : {}
+  if (typeof engines.node === 'string' && engines.node.trim() !== '') pass('package.json engines.node', engines.node)
+  else fail('package.json engines.node', `expected a Node semver range, got ${JSON.stringify(engines.node)}`)
+  if (typeof engines.dsh === 'string' && engines.dsh.trim() !== '') pass('package.json engines.dsh', engines.dsh)
+  else fail('package.json engines.dsh', `expected a DSH semver range, got ${JSON.stringify(engines.dsh)}`)
+
   const files = Array.isArray(pkg.files) ? pkg.files : []
   for (const entry of ['index.js', 'client.js', 'cordis.patch.yml', 'locale/*.json', 'icon.svg']) {
     if (files.includes(entry)) pass(`package.json files contains ${entry}`)
@@ -132,6 +142,7 @@ if (pkg !== undefined) {
   }
 
   if (pkg.dsh !== null && typeof pkg.dsh === 'object') {
+    expectField('dsh.manifestVersion', pkg.dsh.manifestVersion, 1)
     const patch = pkg.dsh.bundle !== null && typeof pkg.dsh.bundle === 'object' ? pkg.dsh.bundle.patch : undefined
     expectField('dsh.bundle.patch', patch, './cordis.patch.yml')
     const client = pkg.dsh.client !== null && typeof pkg.dsh.client === 'object' ? pkg.dsh.client : undefined

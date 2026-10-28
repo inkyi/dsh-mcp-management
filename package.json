@@ -2,6 +2,7 @@
   "name": "dsh-mcp-management",
   "version": "1.0.0",
   "description": "Workspace-scoped MCP servers for DeepSeek Harness: each project directory gets its own MCP tools.",
+  "icon": "./icon.svg",
   "keywords": [
     "dsh",
     "deepseek-harness",
@@ -23,7 +24,8 @@
   },
   "type": "module",
   "engines": {
-    "node": ">=22"
+    "node": ">=22",
+    "dsh": "^0.2.1-rc.3"
   },
   "scripts": {
     "check": "node test/check.mjs",
@@ -34,6 +36,7 @@
   "exports": {
     ".": "./index.js",
     "./client": "./client.js",
+    "./package.json": "./package.json",
     "./locale/*.json": "./locale/*.json",
     "./icon": "./icon.svg"
   },
@@ -47,6 +50,7 @@
     "vendor/LICENSE*.txt"
   ],
   "dsh": {
+    "manifestVersion": 1,
     "bundle": {
       "patch": "./cordis.patch.yml"
     },
