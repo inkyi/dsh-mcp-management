@@ -15,7 +15,7 @@
  * The pure resolution helpers at the bottom are exported so they can be
  * unit-tested without a Cordis runtime.
  *
- * @module dsh-plugin-mcp-management
+ * @module dsh-mcp-management
  */
 
 import { readFile, realpath, stat } from 'node:fs/promises'
@@ -26,16 +26,16 @@ import { basename, dirname, isAbsolute, join, resolve, sep } from 'node:path'
 import z from './vendor/schemastery.mjs'
 
 /** Cordis plugin name used by loader diagnostics. */
-export const name = 'mcp-workspaces'
+export const name = 'mcp-management'
 
 /** Services required by this plugin. `agents`/`configEditor` are optional. */
 export const inject = ['tools', 'loader']
 
-/** Plugin entry id in the profile patch; the `mcp_workspaces` tool edits this entry. */
-const ENTRY_ID = 'mcp-workspaces'
+/** Plugin entry id in the profile patch; the `mcp_management` tool edits this entry. */
+const ENTRY_ID = 'mcp-management'
 
 /** Tool exposed to the model. */
-const TOOL_NAME = 'mcp_workspaces'
+const TOOL_NAME = 'mcp_management'
 
 /** Loader specifier for the MCP client plugin (never a package.json dependency). */
 const MCP_CLIENT_SPECIFIER = '@deepseek-ai/dsh-mcp-client'
@@ -554,12 +554,12 @@ export async function findMcpConfigFile(options = {}) {
 }
 
 // ---------------------------------------------------------------------------
-// Host plugin: config reads, agent binding, and the `mcp_workspaces` tool.
+// Host plugin: config reads, agent binding, and the `mcp_management` tool.
 // ---------------------------------------------------------------------------
 
 /**
  * Mount workspace-scoped MCP clients onto live Agents and expose the
- * `mcp_workspaces` management tool.
+ * `mcp_management` management tool.
  *
  * @param {object} ctx - Cordis plugin context (tools + loader injected).
  * @param {object} config - resolved plugin config; volatile fields are refs.
@@ -966,7 +966,7 @@ export async function apply(ctx, config) {
     })
   })
 
-  // -- mcp_workspaces tool ---------------------------------------------------
+  // -- mcp_management tool ---------------------------------------------------
 
   const getConfigEditor = () => {
     if (state.services.configEditor) return state.services.configEditor
@@ -1277,5 +1277,5 @@ export async function apply(ctx, config) {
       const pending = [...state.bindings.keys()].map((sessionId) => disposeBinding(sessionId))
       await Promise.allSettled(pending)
     }
-  }, 'mcp-workspaces.tool-and-bindings')
+  }, 'mcp-management.tool-and-bindings')
 }

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Zero-dependency stdio MCP server fixture for the mcp-workspaces plugin.
+ * Zero-dependency stdio MCP server fixture for the mcp-management plugin.
  *
  * Wire format: one JSON-RPC 2.0 message per line on stdin/stdout (MCP stdio
  * transport, newline-delimited UTF-8 JSON). Diagnostics go to stderr only.
@@ -51,7 +51,7 @@ const SUPPORTED_PROTOCOL_VERSIONS = [
 /** Fallback when the client sends no (or an unknown) protocolVersion. */
 const DEFAULT_PROTOCOL_VERSION = '2026-07-28'
 
-const SERVER_INFO = { name: 'mcp-workspaces-fixture', version: '1.0.0' }
+const SERVER_INFO = { name: 'mcp-management-fixture', version: '1.0.0' }
 const INSTRUCTIONS = 'Workspace MCP test fixture: tools `ping` (returns pong) and `echo` (echoes arguments).'
 
 /** Negotiated protocol version, set by initialize. */

@@ -1,4 +1,4 @@
 - insert:
-    - id: mcp-workspaces
-      name: 'dsh-plugin-mcp-management'
+    - id: mcp-management
+      name: 'dsh-mcp-management'
       config: {}

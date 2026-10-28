@@ -1,4 +1,4 @@
-# dsh-plugin-mcp-management
+# dsh-mcp-management
 
 > **MCP Management for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)** — give
 > every workspace (project directory) its own MCP servers, and only expose those tools to sessions
@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D22-brightgreen.svg)](package.json)
-[![CI](https://github.com/YOUR_GITHUB_USERNAME/dsh-plugin-mcp-management/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_GITHUB_USERNAME/dsh-plugin-mcp-management/actions/workflows/ci.yml)
+[![CI](https://github.com/YOUR_GITHUB_USERNAME/dsh-mcp-management/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_GITHUB_USERNAME/dsh-mcp-management/actions/workflows/ci.yml)
 
 中文说明：[README.zh.md](README.zh.md)
 
@@ -26,7 +26,7 @@ while a session in `~/work/docs` sees a different set — or none at all.
   `{ "mcpServers": { ... } }` shape is supported.
 - **A real settings page.** *Settings → MCP Management* edits workspaces and servers in place
   (stdio command/args/env/cwd, streamable-http URL/headers, enable/disable).
-- **An agent tool.** `mcp_workspaces` lets the model inspect and manage the mapping
+- **An agent tool.** `mcp_management` lets the model inspect and manage the mapping
   (`status`, `list`, `setServer`, `removeServer`, `setEnabled`, `setWorkspace`).
 - **Live updates.** Servers are mounted on each Agent's own registration scope (`agent.ctx`), so
   tools appear and disappear per session as configuration changes — no restart needed.
@@ -68,14 +68,14 @@ re-bind live Agents without reloading the plugin.
 1. Clone this repository somewhere stable:
 
    ```bash
-   git clone https://github.com/YOUR_GITHUB_USERNAME/dsh-plugin-mcp-management.git
+   git clone https://github.com/YOUR_GITHUB_USERNAME/dsh-mcp-management.git
    ```
 
 2. From a DeepSeek Harness session, install the directory as a bundle (the Harness links it into the
    active profile and recomposes):
 
    ```
-   plugin_manager action=install_bundle target=/absolute/path/to/dsh-plugin-mcp-management
+   plugin_manager action=install_bundle target=/absolute/path/to/dsh-mcp-management
    ```
 
    That is the only install mechanism; do not copy files into `~/.dsh` by hand.
@@ -83,7 +83,7 @@ re-bind live Agents without reloading the plugin.
 3. Open **Settings → MCP Management**. If the navigation entry is missing, refresh the page once
    (the client half is loaded with the page).
 
-Uninstall with `plugin_manager action=remove_bundle target=dsh-plugin-mcp-management`.
+Uninstall with `plugin_manager action=remove_bundle target=dsh-mcp-management`.
 
 ## Usage
 
@@ -139,17 +139,17 @@ adds the rest. `enabled: false` entries stay configured but are not connected.
 ### Agent tool
 
 ```
-mcp_workspaces { "action": "status" }                       # this session's workspace, file config, servers
-mcp_workspaces { "action": "list" }                         # defaults + all workspace entries
-mcp_workspaces { "action": "setServer", "server": { … } }   # upsert one server in the current workspace
-mcp_workspaces { "action": "setEnabled", "serverName": "idea", "enabled": false }
-mcp_workspaces { "action": "setWorkspace", "workspacePath": "/path", "servers": [ … ] }
+mcp_management { "action": "status" }                       # this session's workspace, file config, servers
+mcp_management { "action": "list" }                         # defaults + all workspace entries
+mcp_management { "action": "setServer", "server": { … } }   # upsert one server in the current workspace
+mcp_management { "action": "setEnabled", "serverName": "idea", "enabled": false }
+mcp_management { "action": "setWorkspace", "workspacePath": "/path", "servers": [ … ] }
 ```
 
 ## Configuration storage
 
 GUI-managed values are written to the active profile's user patch layer
-(`~/.dsh/profiles/<profile>/cordis.patch.yml`) in the `mcp-workspaces` row, as the volatile fields
+(`~/.dsh/profiles/<profile>/cordis.patch.yml`) in the `mcp-management` row, as the volatile fields
 `defaultServers` and `workspaces`. You can also edit that YAML directly; volatile fields apply
 without restarting.
 
@@ -157,8 +157,8 @@ Ordinary fields (`fileConfigEnabled`, `fileConfigPath`, `matchSubdirectories`) l
 and take effect on the next plugin reload:
 
 ```yaml
-- id: mcp-workspaces
-  name: 'dsh-plugin-mcp-management'
+- id: mcp-management
+  name: 'dsh-mcp-management'
   config:
     fileConfigEnabled: true        # read <workspace>/.dsh/mcp.json (default true)
     fileConfigPath: .dsh/mcp.json  # location inside the workspace

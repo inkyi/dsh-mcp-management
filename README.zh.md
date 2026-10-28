@@ -1,11 +1,11 @@
-# dsh-plugin-mcp-management
+# dsh-mcp-management
 
 > **DeepSeek Harness 的 MCP 管理插件**：让**每个工作区（项目目录）使用自己的 MCP 服务器**，并且
 > 只有运行在该工作区的会话才能看到对应的 `mcp__<serverName>__<tool>` 工具。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D22-brightgreen.svg)](package.json)
-[![CI](https://github.com/YOUR_GITHUB_USERNAME/dsh-plugin-mcp-management/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_GITHUB_USERNAME/dsh-plugin-mcp-management/actions/workflows/ci.yml)
+[![CI](https://github.com/YOUR_GITHUB_USERNAME/dsh-mcp-management/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_GITHUB_USERNAME/dsh-mcp-management/actions/workflows/ci.yml)
 
 English: [README.md](README.md)
 
@@ -22,7 +22,7 @@ English: [README.md](README.md)
    （兼容 `{ "mcpServers": { ... } }` 习惯格式）。
 4. **真正的设置页**：**设置 → MCP 管理** 中增删改工作区与服务器（stdio 的 command/args/env/cwd，
    streamable-http 的 url/headers，以及启停）。
-5. **Agent 工具 `mcp_workspaces`**：模型也可直接管理，支持
+5. **Agent 工具 `mcp_management`**：模型也可直接管理，支持
    `status` / `list` / `setServer` / `removeServer` / `setEnabled` / `setWorkspace`。
 6. **实时生效**：服务器连接建立在各会话自己的注册作用域（`agent.ctx`）上，配置变更会实时重挂，
    无需重启 DSH；新会话在第一步之前就绪。
@@ -59,20 +59,20 @@ volatile 字段，变更时通过 `loader/volatile-update` 重新解析并重挂
 1. 克隆仓库到固定位置：
 
    ```bash
-   git clone https://github.com/YOUR_GITHUB_USERNAME/dsh-plugin-mcp-management.git
+   git clone https://github.com/YOUR_GITHUB_USERNAME/dsh-mcp-management.git
    ```
 
 2. 在 DeepSeek Harness 会话里把它作为 bundle 安装（Harness 会链接目录并重组 profile）：
 
    ```
-   plugin_manager action=install_bundle target=/绝对路径/dsh-plugin-mcp-management
+   plugin_manager action=install_bundle target=/绝对路径/dsh-mcp-management
    ```
 
    这是唯一安装方式，不要手动往 `~/.dsh` 里复制文件。
 
 3. 打开 **设置 → MCP 管理**。若设置导航里暂时没有这一项，刷新一次页面（客户端模块随页面加载）。
 
-卸载：`plugin_manager action=remove_bundle target=dsh-plugin-mcp-management`。
+卸载：`plugin_manager action=remove_bundle target=dsh-mcp-management`。
 
 ## 使用
 
@@ -133,23 +133,23 @@ GUI 工作区服务器  workspaces[].servers（最长匹配的工作区路径优
 ### 让 Agent 管理
 
 ```
-mcp_workspaces { "action": "status" }                       # 当前会话工作区与服务器状态
-mcp_workspaces { "action": "list" }                         # 全局默认 + 各工作区配置
-mcp_workspaces { "action": "setServer", "server": { ... } } # 当前工作区 upsert 一台服务器
-mcp_workspaces { "action": "setEnabled", "serverName": "idea", "enabled": false }
-mcp_workspaces { "action": "setWorkspace", "workspacePath": "/path", "servers": [ ... ] }
+mcp_management { "action": "status" }                       # 当前会话工作区与服务器状态
+mcp_management { "action": "list" }                         # 全局默认 + 各工作区配置
+mcp_management { "action": "setServer", "server": { ... } } # 当前工作区 upsert 一台服务器
+mcp_management { "action": "setEnabled", "serverName": "idea", "enabled": false }
+mcp_management { "action": "setWorkspace", "workspacePath": "/path", "servers": [ ... ] }
 ```
 
 ## 数据存放
 
 - GUI 配置写入 profile 的用户 patch 层（`~/.dsh/profiles/<profile>/cordis.patch.yml` 的
-  `mcp-workspaces` 行），其中 `defaultServers` / `workspaces` 是 volatile 字段：修改即时生效且重启后保留。
+  `mcp-management` 行），其中 `defaultServers` / `workspaces` 是 volatile 字段：修改即时生效且重启后保留。
   也可直接编辑该 YAML。
 - 普通字段（`fileConfigEnabled`、`fileConfigPath`、`matchSubdirectories`）在同一行，插件重载后生效：
 
   ```yaml
-  - id: mcp-workspaces
-    name: 'dsh-plugin-mcp-management'
+  - id: mcp-management
+    name: 'dsh-mcp-management'
     config:
       fileConfigEnabled: true        # 是否读取 <workspace>/.dsh/mcp.json（默认 true）
       fileConfigPath: .dsh/mcp.json  # 工作区内的相对路径
@@ -181,9 +181,9 @@ npm run sdk-smoke   # 可选：真实 MCP SDK 握手（不可用时自动 SKIP�
 
 | 路径 | 说明 |
 |---|---|
-| `index.js` | Host 插件：配置解析、按会话挂载 MCP、`mcp_workspaces` 工具 |
+| `index.js` | Host 插件：配置解析、按会话挂载 MCP、`mcp_management` 工具 |
 | `client.js` | Web 设置页（`settings.section`，configForms 读写） |
-| `cordis.patch.yml` | Loader 行：`id: mcp-workspaces` |
+| `cordis.patch.yml` | Loader 行：`id: mcp-management` |
 | `locale/{en,zh}.json` | 插件标题/描述（插件管理器中显示） |
 | `icon.svg` | 插件图标 |
 | `vendor/` | 内置的 Schemastery/Cosmokit ESM 构建（MIT，未改动逻辑） |

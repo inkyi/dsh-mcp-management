@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Static contract checks for the dsh-plugin-mcp-management bundle.
+ * Static contract checks for the dsh-mcp-management bundle.
  *
  * Verifies the files/metadata that do NOT require a running DSH Host:
  *   - package.json fields (name/type/exports/files/dsh.bundle.patch/dsh.client)
@@ -23,8 +23,8 @@ import { fileURLToPath } from 'node:url'
 const HERE = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(HERE, '..')
 const ICON_LIMIT_BYTES = 256 * 1024
-const PLUGIN_NAME = 'dsh-plugin-mcp-management'
-const ENTRY_ID = 'mcp-workspaces'
+const PLUGIN_NAME = 'dsh-mcp-management'
+const ENTRY_ID = 'mcp-management'
 
 const passes = []
 const failures = []
@@ -349,9 +349,9 @@ if (clientSource !== '') {
   } else {
     pass('client.js does not reference @deepseek-ai/*')
   }
-  const namespace = /settings\.mcpWorkspaces/.test(clientSource) ? 'settings.mcpWorkspaces' : undefined
+  const namespace = /settings\.mcpManagement/.test(clientSource) ? 'settings.mcpManagement' : undefined
   if (namespace !== undefined) pass('client.js declares locale namespace', namespace)
-  else warn('client.js declares locale namespace', 'settings.mcpWorkspaces not found')
+  else warn('client.js declares locale namespace', 'settings.mcpManagement not found')
 }
 
 // ---------------------------------------------------------------------------

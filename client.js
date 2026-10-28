@@ -1,5 +1,5 @@
 window.__ModuleLoader__.load({
-	id: "dsh-plugin-mcp-management",
+	id: "dsh-mcp-management",
 	factory: (require) => {
 		var module = { exports: {} };
 		var exports = module.exports;
@@ -7,9 +7,9 @@ window.__ModuleLoader__.load({
 		const React = require("react");
 		const h = React.createElement;
 		/** Dictionary namespace owned by this page. */
-		const NS = "settings.mcpWorkspaces";
+		const NS = "settings.mcpManagement";
 		/** Profile entry id of the Host half of this plugin (the config namespace). */
-		const ENTRY_ID = "mcp-workspaces";
+		const ENTRY_ID = "mcp-management";
 		/** Accepted server names: they become `mcp__<serverName>__<tool>` tool segments. */
 		const SERVER_NAME_PATTERN = /^[A-Za-z0-9_-]{1,32}$/;
 		const TRANSPORT_STDIO = "stdio";
@@ -384,7 +384,7 @@ window.__ModuleLoader__.load({
 						try {
 							listener();
 						} catch (error) {
-							console.warn("[mcp-workspaces] settings listener failed:", error);
+							console.warn("[mcp-management] settings listener failed:", error);
 						}
 					}
 				},
@@ -493,7 +493,7 @@ window.__ModuleLoader__.load({
 						if (accepted !== true) return this.fail("error.saveFailed");
 						return { ok: true };
 					} catch (error) {
-						console.warn("[mcp-workspaces] config write failed:", error);
+						console.warn("[mcp-management] config write failed:", error);
 						return this.fail("error.saveFailed");
 					} finally {
 						this.pending -= 1;
@@ -613,7 +613,7 @@ window.__ModuleLoader__.load({
 				try {
 					picked = await pickWorkspaceDirectory(this.ctx);
 				} catch (error) {
-					console.warn("[mcp-workspaces] directory picker failed:", error);
+					console.warn("[mcp-management] directory picker failed:", error);
 					this.picking = false;
 					return this.fail("error.pickFailed");
 				}
@@ -674,13 +674,13 @@ window.__ModuleLoader__.load({
 				try {
 					this.unsubscribe();
 				} catch (error) {
-					console.warn("[mcp-workspaces] form unsubscribe failed:", error);
+					console.warn("[mcp-management] form unsubscribe failed:", error);
 				}
 			}
 			/** The face the settings section injects: snapshot hook plus write actions. */
 			inject() {
 				return {
-					hooks: { mcpWorkspaces: this.store },
+					hooks: { mcpManagement: this.store },
 					saveServer: (scope, index, draft) => this.saveServer(scope, index, draft),
 					removeServer: (scope, index) => this.removeServer(scope, index),
 					setServerEnabled: (scope, index, enabled) => this.setServerEnabled(scope, index, enabled),
@@ -1113,7 +1113,7 @@ window.__ModuleLoader__.load({
 					}
 					onClose();
 				} catch (error) {
-					console.warn("[mcp-workspaces] adding workspace failed:", error);
+					console.warn("[mcp-management] adding workspace failed:", error);
 					setErrorKey("error.saveFailed");
 					setSaving(false);
 				}
@@ -1260,7 +1260,7 @@ window.__ModuleLoader__.load({
 					}
 					onClose();
 				} catch (error) {
-					console.warn("[mcp-workspaces] saving server failed:", error);
+					console.warn("[mcp-management] saving server failed:", error);
 					setErrorKey("error.saveFailed");
 					setSaving(false);
 				}
@@ -1624,7 +1624,7 @@ window.__ModuleLoader__.load({
 						zh,
 						en,
 					}),
-				"mcp-workspaces: dictionaries",
+				"mcp-management: dictionaries",
 			);
 			const t = ctx.locale.bind(NS);
 			const form = ctx.configForms.get(ENTRY_ID);
@@ -1633,7 +1633,7 @@ window.__ModuleLoader__.load({
 				() => () => {
 					controller.dispose();
 				},
-				"mcp-workspaces: form subscription",
+				"mcp-management: form subscription",
 			);
 			ctx.effect(
 				() =>
@@ -1652,7 +1652,7 @@ window.__ModuleLoader__.load({
 							),
 						),
 					),
-				"mcp-workspaces: settings page",
+				"mcp-management: settings page",
 			);
 		}
 		//#endregion

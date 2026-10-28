@@ -17,7 +17,7 @@ Initial release.
   follows the familiar `mcpServers` shape and can be committed to the repository).
 - Web settings page **Settings → MCP Management** with full server editing (stdio and
   streamable-http), enable/disable, workspace add/remove and rename.
-- Agent tool `mcp_workspaces` (`status` / `list` / `setServer` / `removeServer` / `setEnabled` /
+- Agent tool `mcp_management` (`status` / `list` / `setServer` / `removeServer` / `setEnabled` /
   `setWorkspace`) sharing the same configuration storage as the settings page.
 - `${env:NAME}` expansion for `command`, `args`, `url`, `env` and `headers`, so secrets can stay in
   the Host environment.

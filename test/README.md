@@ -1,6 +1,6 @@
 # Test suite
 
-Offline verification for `dsh-plugin-mcp-management`. Everything here runs without a DeepSeek
+Offline verification for `dsh-mcp-management`. Everything here runs without a DeepSeek
 Harness installation, without `npm install`, and without network access; scripts only read plugin
 files and write inside `test/tmp/` (removed on exit, except the fixture call log).
 
@@ -25,7 +25,7 @@ Validates the bundle wiring that a typo would otherwise only expose at install t
   `LICENSE`, `README.md`) exist and are non-empty;
 - `package.json`: name, `type: module`, MIT license, GitHub repository, semver version, exports map,
   `files` list, and the `dsh.bundle.patch` / `dsh.client` declarations;
-- `cordis.patch.yml`: an `- insert:` row with `id: mcp-workspaces` and `name: dsh-plugin-mcp-management`;
+- `cordis.patch.yml`: an `- insert:` row with `id: mcp-management` and `name: dsh-mcp-management`;
 - locale dictionaries parse, carry non-empty `meta.title`/`meta.description`, and share the same key
   set across languages;
 - `icon.svg` parses as SVG and is below the 256 KiB limit;
@@ -74,8 +74,8 @@ located through `MCP_SDK_ROOT`, a repository-local `node_modules`, or a sibling 
 Loads `client.js` with a fake `window.__ModuleLoader__` and a fake Cordis context, then asserts:
 
 - the module id, exported `inject` list and `apply` shape;
-- locale namespace `settings.mcpWorkspaces` with identical zh/en key sets and full `t()` coverage;
-- the `settings.section` registration (`id: mcp-workspaces`, order 16, localized label, hooks/actions
+- locale namespace `settings.mcpManagement` with identical zh/en key sets and full `t()` coverage;
+- the `settings.section` registration (`id: mcp-management`, order 16, localized label, hooks/actions
   exposed through `inject()`).
 
 React rendering itself is **not** exercised.
@@ -83,7 +83,7 @@ React rendering itself is **not** exercised.
 ## 5. Using the fixture against a real installation
 
 For a manual end-to-end check, add the fixture as a workspace's server (through the settings page or
-`mcp_workspaces`), e.g.:
+`mcp_management`), e.g.:
 
 ```json
 {
@@ -98,7 +98,7 @@ For a manual end-to-end check, add the fixture as a workspace's server (through 
 
 Use the absolute path of the same Node binary that runs the Harness (a GUI-launched process may not
 inherit a shell's `PATH`). After a session in that workspace starts, `mcp__fixture__ping` should
-return `pong` and `test/tmp/calls.log` should gain a line. `mcp_workspaces status` reports the
+return `pong` and `test/tmp/calls.log` should gain a line. `mcp_management status` reports the
 resolved source of every server.
 
 ## What this suite does not cover

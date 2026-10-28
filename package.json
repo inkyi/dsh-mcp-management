@@ -1,5 +1,5 @@
 {
-  "name": "dsh-plugin-mcp-management",
+  "name": "dsh-mcp-management",
   "version": "1.0.0",
   "description": "Workspace-scoped MCP servers for DeepSeek Harness: each project directory gets its own MCP tools.",
   "keywords": [
@@ -15,11 +15,11 @@
   "author": "YOUR_GITHUB_USERNAME",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/YOUR_GITHUB_USERNAME/dsh-plugin-mcp-management.git"
+    "url": "git+https://github.com/YOUR_GITHUB_USERNAME/dsh-mcp-management.git"
   },
-  "homepage": "https://github.com/YOUR_GITHUB_USERNAME/dsh-plugin-mcp-management#readme",
+  "homepage": "https://github.com/YOUR_GITHUB_USERNAME/dsh-mcp-management#readme",
   "bugs": {
-    "url": "https://github.com/YOUR_GITHUB_USERNAME/dsh-plugin-mcp-management/issues"
+    "url": "https://github.com/YOUR_GITHUB_USERNAME/dsh-mcp-management/issues"
   },
   "type": "module",
   "engines": {

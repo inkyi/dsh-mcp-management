@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Offline registration smoke test for dsh-plugin-mcp-management/client.js.
+ * Offline registration smoke test for dsh-mcp-management/client.js.
  *
  * Per DESIGN 5.5, when real browser rendering is unavailable we must still show
  * that the browser module parses, its registration path does not throw, and its
@@ -9,7 +9,7 @@
  * browser context, then:
  *   1. asserts the exported module shape (`inject` + `apply`),
  *   2. runs `apply(ctx)` and asserts nothing throws,
- *   3. asserts `locale.register('settings.mcpWorkspaces', { zh, en })` happened
+ *   3. asserts `locale.register('settings.mcpManagement', { zh, en })` happened
  *      and that zh/en leaf keys match,
  *   4. asserts the `settings.section` slot registration (id/order/locale/label),
  *   5. checks every `t("key")` reference in client.js exists in the dictionaries,
@@ -30,8 +30,8 @@ import { fileURLToPath } from 'node:url'
 const HERE = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(HERE, '..')
 const CLIENT_PATH = join(ROOT, 'client.js')
-const EXPECTED_NS = 'settings.mcpWorkspaces'
-const EXPECTED_ENTRY_ID = 'mcp-workspaces'
+const EXPECTED_NS = 'settings.mcpManagement'
+const EXPECTED_ENTRY_ID = 'mcp-management'
 
 const source = readFileSync(CLIENT_PATH, 'utf8')
 
@@ -166,7 +166,7 @@ try {
   load(fakeWindow, fakeRequire, console)
   assert.ok(loaded !== undefined, 'window.__ModuleLoader__.load was not called')
 
-  assert.equal(loaded.id, 'dsh-plugin-mcp-management', 'module id mismatch')
+  assert.equal(loaded.id, 'dsh-mcp-management', 'module id mismatch')
   assert.equal(typeof loaded.factory, 'function', 'module factory missing')
   const moduleExports = loaded.factory(fakeRequire)
   assert.equal(typeof moduleExports.apply, 'function', 'module must export apply()')
@@ -201,10 +201,10 @@ try {
   assert.equal(typeof slotRegistration.inject, 'function')
   const injected = slotRegistration.inject()
   assert.ok(injected !== null && typeof injected === 'object', 'slot inject() must return props')
-  assert.ok(injected.hooks?.mcpWorkspaces !== undefined, 'slot props must expose hooks.mcpWorkspaces store')
-  assert.equal(typeof injected.hooks.mcpWorkspaces.getSnapshot, 'function')
-  assert.equal(typeof injected.hooks.mcpWorkspaces.subscribe, 'function')
-  assert.equal(injected.hooks.mcpWorkspaces.getSnapshot().status, 'ready')
+  assert.ok(injected.hooks?.mcpManagement !== undefined, 'slot props must expose hooks.mcpManagement store')
+  assert.equal(typeof injected.hooks.mcpManagement.getSnapshot, 'function')
+  assert.equal(typeof injected.hooks.mcpManagement.subscribe, 'function')
+  assert.equal(injected.hooks.mcpManagement.getSnapshot().status, 'ready')
   for (const action of ['saveServer', 'removeServer', 'setServerEnabled', 'addWorkspace', 'submitWorkspacePath', 'closeAddWorkspace', 'removeWorkspace', 'renameWorkspace', 'clearError']) {
     assert.equal(typeof injected[action], 'function', `slot inject() must expose action ${action}`)
   }
@@ -237,7 +237,7 @@ try {
   assert.equal(bridgeWrite.field, 'workspaces')
   assert.deepEqual(bridgeWrite.value.map((workspace) => workspace.path), ['/tmp/bridge-ws'])
   assert.equal(bridgeWrite.value[0].title, 'bridge-ws')
-  assert.notEqual(injected.hooks.mcpWorkspaces.getSnapshot().addOpen, true, 'the desktop bridge path must not open the dialog')
+  assert.notEqual(injected.hooks.mcpManagement.getSnapshot().addOpen, true, 'the desktop bridge path must not open the dialog')
 
   // 5. Without the bridge (a plain browser tab) the page must NOT call the Host
   //    picker; it opens its own dialog, which accepts an absolute path and
@@ -247,7 +247,7 @@ try {
   const dialogOutcome = await injected.addWorkspace()
   assert.equal(dialogOutcome.ok, true, 'browser addWorkspace must succeed')
   assert.equal(remotePicks.length, 0, 'browser addWorkspace must not call the Host picker')
-  assert.equal(injected.hooks.mcpWorkspaces.getSnapshot().addOpen, true, 'browser addWorkspace must open the dialog')
+  assert.equal(injected.hooks.mcpManagement.getSnapshot().addOpen, true, 'browser addWorkspace must open the dialog')
 
   const invalidOutcome = await injected.submitWorkspacePath('relative/path')
   assert.equal(invalidOutcome.ok, false, 'a relative path must be refused')
@@ -258,7 +258,7 @@ try {
   assert.equal(fallbackOutcome.ok, true, 'submitting an absolute path must succeed')
   const fallbackWrite = formWrites.at(-1)
   assert.deepEqual(fallbackWrite.value.map((workspace) => workspace.path), ['/tmp/bridge-ws', '/tmp/remote-ws'])
-  assert.notEqual(injected.hooks.mcpWorkspaces.getSnapshot().addOpen, true, 'a successful add must close the dialog')
+  assert.notEqual(injected.hooks.mcpManagement.getSnapshot().addOpen, true, 'a successful add must close the dialog')
 
   // 6. Disposers returned by apply's effects must be callable without throwing.
   for (const disposer of disposers) disposer()
@@ -276,7 +276,7 @@ try {
       locale: slotRegistration.locale,
       label: slotRegistration.label(),
       component: typeof slotComponent,
-      hookStore: 'hooks.mcpWorkspaces',
+      hookStore: 'hooks.mcpManagement',
       actions: Object.keys(injected).filter((key) => key !== 'hooks'),
     },
     tKeysChecked: usedKeys.size,

@@ -1,4 +1,4 @@
-# 设计契约：MCP 管理（按工作区管理 MCP，dsh-plugin-mcp-management）
+# 设计契约：MCP 管理（按工作区管理 MCP，dsh-mcp-management）
 
 > 本文件是本次开发的唯一契约来源。Host 端（`index.js`）、Client 端（`client.js`）与验证（`test/`）
 > 必须按此实现；如需变更契约，先修改本文件并在 PR 中说明。
@@ -29,11 +29,11 @@
 
 已固定的标识：
 
-- 包名 `dsh-plugin-mcp-management`
-- Loader entry id：`mcp-workspaces`（设置页通过这个 id 读写 config）
-- 设置页 slot：`settings.section`，注册 id `mcp-workspaces`，order `16`
-- 设置页 locale namespace：`settings.mcpWorkspaces`
-- Agent 工具名：`mcp_workspaces`
+- 包名 `dsh-mcp-management`
+- Loader entry id：`mcp-management`（设置页通过这个 id 读写 config）
+- 设置页 slot：`settings.section`，注册 id `mcp-management`，order `16`
+- 设置页 locale namespace：`settings.mcpManagement`
+- Agent 工具名：`mcp_management`
 - 无构建步骤、无新增 npm 依赖；Host/Client 都是手写 ESM/浏览器 JS。
 
 ## 3. 配置 Schema（Host `index.js` 导出，Client 依赖它投影出的 volatile 字段）
@@ -136,13 +136,13 @@ export function parseMcpFile(text) -> { servers: ServerConfig[] } | throws
 - 健壮性：任何单个服务器连接失败只能影响该服务器，不能抛出到 `agent/created` 之外（否则会话创建
   失败）。日志用 `ctx.logger`。
 
-### 4.3 Agent 工具 `mcp_workspaces`
+### 4.3 Agent 工具 `mcp_management`
 
 用**原始 JSON Schema** 定义（与 MCP client 的注册形态一致），`ctx.tools.register({...})`：
 
 ```js
 {
-  name: 'mcp_workspaces',
+  name: 'mcp_management',
   description:
     'Inspect and manage the MCP servers used by workspaces. Workspace-scoped MCP tools are visible only to sessions running in that workspace.',
   parameters: {
@@ -172,7 +172,7 @@ export function parseMcpFile(text) -> { servers: ServerConfig[] } | throws
 - `removeServer`、`setEnabled`、`setWorkspace`（整条工作区替换/删除：`servers` 省略则删除，
   `title` 可改）。
 - **写入路径**：`ctx.configEditor`（`inject` 里加 `configEditor`）。找到自己的 entry：
-  `ctx.configEditor.entries().find(e => e.options.id === 'mcp-workspaces')`，调用
+  `ctx.configEditor.entries().find(e => e.options.id === 'mcp-management')`，调用
   `await ctx.configEditor.edit(entry, (current) => ({ ...current, workspaces: next }))`。
   `current` 是 raw config；`workspaces` 是整个数组的替换。写后无需手动重挂：volatile 事件会触发。
   `configEditor` 不存在时工具要返回明确错误 `"configEditor service is unavailable in this profile"`。
@@ -183,7 +183,7 @@ export function parseMcpFile(text) -> { servers: ServerConfig[] } | throws
 
 ```js
 export const inject = ['tools', 'loader']   // agents/configEditor 用 ctx.inject([...]) 可选注入
-export const name = 'mcp-workspaces'
+export const name = 'mcp-management'
 export const Config = ...
 export async function apply(ctx, config) { ... }
 ```
@@ -203,7 +203,7 @@ export async function apply(ctx, config) { ... }
 
 ```js
 window.__ModuleLoader__.load({
-  id: 'dsh-plugin-mcp-management',
+  id: 'dsh-mcp-management',
   factory(require) {
     const React = require('react')
     const h = React.createElement
@@ -225,22 +225,22 @@ window.__ModuleLoader__.load({
 ### 5.2 注册
 
 ```js
-const NS = 'settings.mcpWorkspaces'
-const form = ctx.configForms.get('mcp-workspaces')     // 我们 Host entry 的 config 表单
+const NS = 'settings.mcpManagement'
+const form = ctx.configForms.get('mcp-management')     // 我们 Host entry 的 config 表单
 
 ctx.effect(() => ctx.locale.register(NS, { zh, en }))
-ctx.effect(() => ctx.configForms.whileServed(['mcp-workspaces'], () =>
+ctx.effect(() => ctx.configForms.whileServed(['mcp-management'], () =>
   ctx.slots.inject('settings.section', () => ctx.slots.register({
     name: 'settings.section',
-    id: 'mcp-workspaces',
+    id: 'mcp-management',
     order: 16,
     label: () => t('title'),
     locale: NS,
-    inject: () => ({ hooks: { mcpWorkspaces: controller.store }, /* actions */ ... }),
+    inject: () => ({ hooks: { mcpManagement: controller.store }, /* actions */ ... }),
   }, Page))))
 ```
 
-- `whileServed(['mcp-workspaces'])`：Host 不 serve 该 namespace（例如插件被禁用）时不显示页面。
+- `whileServed(['mcp-management'])`：Host 不 serve 该 namespace（例如插件被禁用）时不显示页面。
 - 组件收到的 props：`t`（locale bound）、`hooks` 里的 `useXxx`（如 `props.useMcpWorkspaces(sel)`）、
   inject 返回的其它键、slot owner props（`close`）与标准 props。具体以官方示例为准。
 - `controller.store` 必须是 `createSnapshotStore` 风格的 `{getSnapshot, subscribe}`；不要在组件里
@@ -277,7 +277,7 @@ ctx.effect(() => ctx.configForms.whileServed(['mcp-workspaces'], () =>
 ### 5.5 页面可用性要求
 
 - 挂载后 slot 注册可见（`cordis_inspect_query Slots.listSubTree root=settings.section` 能看到
-  `mcp-workspaces` occupant）。
+  `mcp-management` occupant）。
 - 浏览器控制不可用时，至少保证：模块语法可解析、注册代码路径无 throw、locale 字典 key 全覆盖。
 
 ## 6. 验证
@@ -291,7 +291,7 @@ ctx.effect(() => ctx.configForms.whileServed(['mcp-workspaces'], () =>
      真实 MCP SDK 握手冒烟。
 - **端到端（真实安装）**：`plugin_manager install_bundle` → `Config.listConfigs` 看 entry 生效 →
   用测试 MCP 服务器（`test/mcp-server-fixture.mjs`）配置到某个工作区 → 新建会话验证
-  `mcp__<name>__<tool>` 可用 → `mcp_workspaces status` 工具可用 → 设置页 slot occupant 存在。
+  `mcp__<name>__<tool>` 可用 → `mcp_management status` 工具可用 → 设置页 slot occupant 存在。
 - 页面视觉渲染无法截图时，报告「渲染未验证」，不得声称视觉成功。
 
 ## 7. 风险与约束（务必遵守）
@@ -319,23 +319,33 @@ ctx.effect(() => ctx.configForms.whileServed(['mcp-workspaces'], () =>
    （实现原本已支持 `args.servers`，原契约漏声明；省略 `servers` 仍表示删除该工作区条目）。
 3. `package.json` 的 `files` 增加 `vendor/*.mjs` 与 `vendor/LICENSE*.txt`。
 4. **显示名称改为「MCP 管理」（英文 MCP Management）**：更新 `locale/{zh,en}.json` 的
-   `meta.title`、`client.js` 字典的 `title`、README/DESIGN 标题与设置路径引用。内部标识保持不变
-   （包名 `dsh-plugin-mcp-management`、entry id `mcp-workspaces`、Agent 工具名
-   `mcp_workspaces`、配置字段名），避免破坏已写入的 profile 配置与工具调用历史。
+   `meta.title`、`client.js` 字典的 `title`、README/DESIGN 标题与设置路径引用；当时内部标识
+   保持不变（当时 entry id 仍为 `mcp-workspaces`、Agent 工具名仍为 `mcp_workspaces`）。
+5. **二次改名：`dsh-plugin-mcp-management` → `dsh-mcp-management`（全套同步）**：
+   - 包名、client 模块 id（浏览器模块身份 = package name）、Loader entry id
+     `mcp-workspaces` → `mcp-management`、Agent 工具名 `mcp_workspaces` → `mcp_management`、
+     设置页 locale namespace `settings.mcpWorkspaces` → `settings.mcpManagement`、slot hook 名
+     `mcpWorkspaces` → `mcpManagement`、日志前缀 `[mcp-workspaces]` 一并更新。
+   - `desktop` / `web` 两个 profile 的 patch 行 id/name、`package.json` 依赖与
+     `dsh.profile.bundles` 选择、`node_modules` 软链同步迁移；现有工作区配置
+     （`path` / `title` / `servers`）原样保留。
+   - 配置**数据字段名** `defaultServers` / `workspaces` / `fileConfigEnabled` /
+     `fileConfigPath` / `matchSubdirectories` 保持不变：它们描述数据而非插件标识，改名只会
+     增加迁移风险。
 
 ### 端到端结果（本机 `desktop` profile，真实安装）
 
 - `plugin_manager install_bundle`（首跑失败于上述 import）→ 修复后
-  `set_plugin include:mcp-workspaces` → `application: applied`。
-- `mcp_workspaces status/list` 正常；`Config.listConfigs` entry `include:mcp-workspaces`，
+  `set_plugin include:mcp-management` → `application: applied`。
+- `mcp_management status/list` 正常；`Config.listConfigs` entry `include:mcp-management`，
   `defaultServers` / `workspaces` 带 `x-cordis.volatile: true`。
-- `setServer` 写入 profile patch（`cordis.patch.yml` 出现 `mcp-workspaces` 行）→ volatile 重挂
+- `setServer` 写入 profile patch（`cordis.patch.yml` 出现 `mcp-management` 行）→ volatile 重挂
   当前 Agent → 新工具 schema 推送；`mcp__wsfixture__ping` 返回 `pong`。
 - 新建会话（subagent）在同一工作区获得 `mcp__wsfixture__*` 并成功 ping/echo → `agent/created`
   挂载路径生效。
 - `setEnabled false` → 工具立即不可调用（`unknown tool`），`status` 报 `disabled`；`true` → 工具恢复。
 - Client：`Slots.listSubTree root=settings.section` occupants 含
-  `{id:"mcp-workspaces", order:16, active:true}`（`whileServed` 生效，页面注册未抛错）。
+  `{id:"mcp-management", order:16, active:true}`（`whileServed` 生效，页面注册未抛错）。
 - 代码热替换：修改 `index.js` 后由一次配置写入触发 HMR 重新 import（新 `servers` 参数出现在 live
   tool schema 中），无需重启桌面端。
 - 测试用工作区/服务器配置已清理，临时目录已删除；插件保持安装启用。

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Offline unit tests for the pure logic of dsh-plugin-mcp-management/index.js
+ * Offline unit tests for the pure logic of dsh-mcp-management/index.js
  * (DESIGN.md section 6).
  *
  * `index.js` imports its only runtime schema dependency from `vendor/`, so the
