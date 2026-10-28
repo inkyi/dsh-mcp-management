@@ -255,6 +255,28 @@ window.__ModuleLoader__.load({
 					pathKey(workspace.path) === key,
 			);
 		}
+		/**
+		* Pick a workspace directory the way the app's own add-workspace flow does.
+		*
+		* The Electron desktop preload exposes a native chooser that runs as an
+		* app-modal sheet owned by this window (`__DSH_DIRECTORY_PICKER__.pick()`),
+		* so its sidebar shortcuts stay interactive. Opening the Host remote picker
+		* instead spawns a separate `osascript` helper whose panel is owned by that
+		* process — its sidebar can ignore clicks. Prefer the in-window bridge, and
+		* fall back to the Host remote picker for a plain browser or a future host
+		* that has no preload bridge.
+		* @param ctx - browser plugin context carrying `uiWorkspace`.
+		* @returns the picked absolute path, or null when the operator cancels.
+		*/
+		async function pickWorkspaceDirectory(ctx) {
+			const bridge = globalThis.__DSH_DIRECTORY_PICKER__;
+			if (bridge !== undefined && bridge !== null && typeof bridge.pick === "function") {
+				const picked = await bridge.pick();
+				return typeof picked === "string" && picked.trim().length > 0 ? picked : null;
+			}
+			const picked = await ctx.uiWorkspace.pickDirectory();
+			return typeof picked === "string" && picked.trim().length > 0 ? picked : null;
+		}
 		/** Build the complete ServerConfig the Host schema expects from an editor draft. */
 		function serverFromDraft(draft) {
 			const source = draft !== null && typeof draft === "object" ? draft : {};
@@ -512,8 +534,10 @@ window.__ModuleLoader__.load({
 				});
 			}
 			/**
-			* Pick a directory and append it as a workspace. The OS chooser resolves
+			* Pick a directory and append it as a workspace. The chooser resolves
 			* `null` when the operator cancels, which is not an error.
+			* Prefers the in-window Electron bridge (app-modal sheet with a working
+			* sidebar) and falls back to the Host remote picker in a plain browser.
 			*/
 			async addWorkspace() {
 				if (this.disposed) return { ok: false, error: "error.saveFailed" };
@@ -522,7 +546,7 @@ window.__ModuleLoader__.load({
 				this.publish();
 				let picked;
 				try {
-					picked = await this.ctx.uiWorkspace.pickDirectory();
+					picked = await pickWorkspaceDirectory(this.ctx);
 				} catch (error) {
 					console.warn("[mcp-workspaces] directory picker failed:", error);
 					this.picking = false;

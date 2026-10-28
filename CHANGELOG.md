@@ -26,6 +26,13 @@ Initial release.
 - Offline verification suite: static checks, pure-logic unit tests, a dependency-free stdio MCP
   fixture, fixture/client-registration smokes, and an optional real-SDK handshake smoke.
 
+### Fixed
+
+- Adding a workspace now opens the directory chooser through the desktop preload
+  bridge (`__DSH_DIRECTORY_PICKER__.pick()`), the same app-modal sheet the Harness's own
+  add-workspace flow uses, so the native dialog's sidebar shortcuts stay clickable. A plain
+  browser (no bridge) still falls back to the Host remote picker.
+
 ### Notes
 
 - The plugin vendors Schemastery/Cosmokit (MIT) under `vendor/`, because a profile-linked bundle is

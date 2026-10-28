@@ -12,7 +12,9 @@
  *   3. asserts `locale.register('settings.mcpWorkspaces', { zh, en })` happened
  *      and that zh/en leaf keys match,
  *   4. asserts the `settings.section` slot registration (id/order/locale/label),
- *   5. checks every `t("key")` reference in client.js exists in the dictionaries.
+ *   5. checks every `t("key")` reference in client.js exists in the dictionaries,
+ *   6. asserts workspace add prefers the in-window Electron chooser bridge and
+ *      falls back to the Host remote picker when the bridge is absent.
  *
  * This is NOT a render test: React components are never mounted.
  *
@@ -70,20 +72,27 @@ let localeRegistration
 let slotRegistration
 let slotComponent
 
+const formWrites = []
+const remotePicks = []
+let formValue = { defaultServers: [], workspaces: [] }
+let nextRemotePick
+
 function makeFakeCtx() {
   const form = {
     getSnapshot() {
       return {
         status: 'ready',
         writable: true,
-        value: { defaultServers: [], workspaces: [] },
+        value: formValue,
         revision: 1,
       }
     },
     subscribe() {
       return () => {}
     },
-    set() {
+    set(field, value) {
+      formWrites.push({ field, value })
+      formValue = { ...formValue, [field]: value }
       return Promise.resolve(true)
     },
     unset() {
@@ -130,7 +139,10 @@ function makeFakeCtx() {
       },
     },
     uiWorkspace: {
-      pickDirectory: async () => undefined,
+      pickDirectory: async () => {
+        remotePicks.push(true)
+        return nextRemotePick
+      },
     },
   }
   return ctx
@@ -206,7 +218,34 @@ try {
   assert.deepEqual(missingEn, [], `t() keys missing from en dictionary: ${JSON.stringify(missingEn)}`)
   assert.deepEqual(missingZh, [], `t() keys missing from zh dictionary: ${JSON.stringify(missingZh)}`)
 
-  // 4. Disposers returned by apply's effects must be callable without throwing.
+  // 4. addWorkspace prefers the in-window Electron chooser bridge (app-modal
+  //    sheet whose sidebar stays interactive) and only falls back to the Host
+  //    remote picker when the preload bridge is absent.
+  const bridgePicks = []
+  globalThis.__DSH_DIRECTORY_PICKER__ = {
+    pick: async () => {
+      bridgePicks.push(true)
+      return '/tmp/bridge-ws'
+    },
+  }
+  const bridgeOutcome = await injected.addWorkspace()
+  assert.equal(bridgeOutcome.ok, true, 'bridge addWorkspace must succeed')
+  assert.equal(bridgePicks.length, 1, 'addWorkspace must call the Electron bridge once')
+  assert.equal(remotePicks.length, 0, 'addWorkspace must not call the Host picker while the bridge exists')
+  const bridgeWrite = formWrites.at(-1)
+  assert.equal(bridgeWrite.field, 'workspaces')
+  assert.deepEqual(bridgeWrite.value.map((workspace) => workspace.path), ['/tmp/bridge-ws'])
+  assert.equal(bridgeWrite.value[0].title, 'bridge-ws')
+
+  delete globalThis.__DSH_DIRECTORY_PICKER__
+  nextRemotePick = '/tmp/remote-ws'
+  const fallbackOutcome = await injected.addWorkspace()
+  assert.equal(fallbackOutcome.ok, true, 'fallback addWorkspace must succeed')
+  assert.equal(remotePicks.length, 1, 'addWorkspace must fall back to the Host remote picker')
+  const fallbackWrite = formWrites.at(-1)
+  assert.deepEqual(fallbackWrite.value.map((workspace) => workspace.path), ['/tmp/bridge-ws', '/tmp/remote-ws'])
+
+  // 5. Disposers returned by apply's effects must be callable without throwing.
   for (const disposer of disposers) disposer()
 
   console.log(JSON.stringify({
@@ -226,9 +265,11 @@ try {
       actions: Object.keys(injected).filter((key) => key !== 'hooks'),
     },
     tKeysChecked: usedKeys.size,
+    directoryPicker: { bridgePreferred: true, fallbackToHost: true, writes: formWrites.length },
     note: 'registration path only — React components were not rendered',
   }, null, 2))
 } finally {
+  delete globalThis.__DSH_DIRECTORY_PICKER__
   if (previousWindow === undefined) delete globalThis.window
   else globalThis.window = previousWindow
 }
