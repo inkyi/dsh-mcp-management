@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Offline registration smoke test for dsh-mcp-management/client.js.
+ * Offline registration smoke test for @inkyi/dsh-mcp-management/client.js.
  *
  * Per DESIGN 5.5, when real browser rendering is unavailable we must still show
  * that the browser module parses, its registration path does not throw, and its
@@ -166,7 +166,7 @@ try {
   load(fakeWindow, fakeRequire, console)
   assert.ok(loaded !== undefined, 'window.__ModuleLoader__.load was not called')
 
-  assert.equal(loaded.id, 'dsh-mcp-management', 'module id mismatch')
+  assert.equal(loaded.id, '@inkyi/dsh-mcp-management', 'module id mismatch')
   assert.equal(typeof loaded.factory, 'function', 'module factory missing')
   const moduleExports = loaded.factory(fakeRequire)
   assert.equal(typeof moduleExports.apply, 'function', 'module must export apply()')

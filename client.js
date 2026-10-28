@@ -1,5 +1,5 @@
 window.__ModuleLoader__.load({
-	id: "dsh-mcp-management",
+	id: "@inkyi/dsh-mcp-management",
 	factory: (require) => {
 		var module = { exports: {} };
 		var exports = module.exports;

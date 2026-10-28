@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 /**
- * Static contract checks for the dsh-mcp-management bundle.
+ * Static contract checks for the @inkyi/dsh-mcp-management bundle.
  *
  * Verifies the files/metadata that do NOT require a running DSH Host:
  *   - package.json fields (name/type/exports/files/icon/engines and the
  *     dsh.manifestVersion / dsh.bundle.patch / dsh.client declarations)
  *   - cordis.patch.yml entry id + package name
  *   - a copy-paste install command in both READMEs (plugin-marketplace requirement)
+ *   - LICENSE stays plain MIT text; NOTICE.md lists the vendored licenses
  *   - locale/en.json + locale/zh.json have meta.title / meta.description
  *   - icon.svg parses (xmllint when available, lightweight fallback) and is < 256 KiB
  *   - index.js / client.js exist and pass `node --input-type=module --check`
@@ -25,7 +26,7 @@ import { fileURLToPath } from 'node:url'
 const HERE = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(HERE, '..')
 const ICON_LIMIT_BYTES = 256 * 1024
-const PLUGIN_NAME = 'dsh-mcp-management'
+const PLUGIN_NAME = '@inkyi/dsh-mcp-management'
 const ENTRY_ID = 'mcp-management'
 
 const passes = []
@@ -70,6 +71,7 @@ const REQUIRED_FILES = [
   'locale/zh.json',
   'icon.svg',
   'LICENSE',
+  'NOTICE.md',
   'README.md',
 ]
 const present = new Map()
@@ -90,6 +92,23 @@ for (const readme of ['README.md', 'README.zh.md']) {
   const command = /dsh plugin --profile web add \S+/.exec(readText(readme))
   if (command !== null) pass(`${readme} has a copy-paste install command`, command[0])
   else fail(`${readme} has a copy-paste install command`, 'expected "dsh plugin --profile web add <package>"')
+}
+
+// ---------------------------------------------------------------------------
+// 1c. License split: plain MIT LICENSE, vendored notices in NOTICE.md
+// ---------------------------------------------------------------------------
+if (present.get('LICENSE')) {
+  const license = readText('LICENSE')
+  if (/^MIT License/m.test(license)) pass('LICENSE carries the MIT text')
+  else fail('LICENSE carries the MIT text', 'expected a leading "MIT License" line')
+  if (/third-party notices/i.test(license)) fail('LICENSE leaves third-party notices to NOTICE.md')
+  else pass('LICENSE leaves third-party notices to NOTICE.md')
+}
+if (present.get('NOTICE.md')) {
+  const notice = readText('NOTICE.md').toLowerCase()
+  const missing = ['schemastery', 'cosmokit'].filter((name) => !notice.includes(name))
+  if (missing.length === 0) pass('NOTICE.md lists the vendored licenses')
+  else fail('NOTICE.md lists the vendored licenses', `missing ${missing.join(', ')}`)
 }
 
 // ---------------------------------------------------------------------------

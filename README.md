@@ -65,8 +65,14 @@ re-bind live Agents without reloading the plugin.
 
 ## Install
 
-Install the plugin into a DeepSeek Harness profile with `dsh plugin`. It works straight from GitHub,
-so no npm release is required:
+Install the plugin into a DeepSeek Harness profile with `dsh plugin`. This is also the command the
+DSH Plugin Center uses:
+
+```bash
+dsh plugin --profile web add @inkyi/dsh-mcp-management
+```
+
+Before the npm release exists (or to track the repository directly), install straight from GitHub:
 
 ```bash
 dsh plugin --profile web add github:inkyi/dsh-mcp-management
@@ -88,8 +94,8 @@ inside a session `plugin_manager action=install_bundle target=...` does the same
 Open **Settings → MCP Management**. If the navigation entry is missing, refresh the page once
 (the client half is loaded with the page).
 
-Uninstall with `dsh plugin --profile web remove dsh-mcp-management` (or, inside a session,
-`plugin_manager action=remove_bundle target=dsh-mcp-management`).
+Uninstall with `dsh plugin --profile web remove @inkyi/dsh-mcp-management` (or, inside a session,
+`plugin_manager action=remove_bundle target=@inkyi/dsh-mcp-management`).
 
 ## Usage
 
@@ -164,7 +170,7 @@ and take effect on the next plugin reload:
 
 ```yaml
 - id: mcp-management
-  name: 'dsh-mcp-management'
+  name: '@inkyi/dsh-mcp-management'
   config:
     fileConfigEnabled: true        # read <workspace>/.dsh/mcp.json (default true)
     fileConfigPath: .dsh/mcp.json  # location inside the workspace
@@ -201,4 +207,4 @@ verification record live in [DESIGN.md](DESIGN.md).
 ## License
 
 [MIT](LICENSE). Vendored third-party code: Schemastery 3.18.5 and Cosmokit 1.8.6 (both MIT,
-Copyright © 2021-present Shigma) — see `vendor/LICENSE.*.txt`.
+Copyright © 2021-present Shigma) — see [NOTICE.md](NOTICE.md) and `vendor/LICENSE.*.txt`.

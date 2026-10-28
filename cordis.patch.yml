@@ -1,4 +1,4 @@
 - insert:
     - id: mcp-management
-      name: 'dsh-mcp-management'
+      name: '@inkyi/dsh-mcp-management'
       config: {}

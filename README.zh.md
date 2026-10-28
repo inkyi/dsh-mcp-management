@@ -56,7 +56,13 @@ volatile 字段，变更时通过 `loader/volatile-update` 重新解析并重挂
 
 ## 安装
 
-用 `dsh plugin` 把插件装进 DeepSeek Harness 的 profile。可以直接从 GitHub 安装，不需要 npm 发布：
+用 `dsh plugin` 把插件装进 DeepSeek Harness 的 profile（这也是 DSH 插件中心使用的命令）：
+
+```bash
+dsh plugin --profile web add @inkyi/dsh-mcp-management
+```
+
+npm 包发布之前（或想直接跟踪仓库 main），可以从 GitHub 源码安装：
 
 ```bash
 dsh plugin --profile web add github:inkyi/dsh-mcp-management
@@ -76,8 +82,8 @@ dsh plugin --profile web add link:/绝对路径/dsh-mcp-management
 
 打开 **设置 → MCP 管理**。若导航里暂时没有这一项，刷新一次页面（客户端模块随页面加载）。
 
-卸载：`dsh plugin --profile web remove dsh-mcp-management`（或会话内
-`plugin_manager action=remove_bundle target=dsh-mcp-management`）。
+卸载：`dsh plugin --profile web remove @inkyi/dsh-mcp-management`（或会话内
+`plugin_manager action=remove_bundle target=@inkyi/dsh-mcp-management`）。
 
 ## 使用
 
@@ -154,7 +160,7 @@ mcp_management { "action": "setWorkspace", "workspacePath": "/path", "servers": 
 
   ```yaml
   - id: mcp-management
-    name: 'dsh-mcp-management'
+    name: '@inkyi/dsh-mcp-management'
     config:
       fileConfigEnabled: true        # 是否读取 <workspace>/.dsh/mcp.json（默认 true）
       fileConfigPath: .dsh/mcp.json  # 工作区内的相对路径
@@ -198,4 +204,4 @@ npm run sdk-smoke   # 可选：真实 MCP SDK 握手（不可用时自动 SKIP�
 ## 许可证
 
 [MIT](LICENSE)。内置第三方代码：Schemastery 3.18.5、Cosmokit 1.8.6（均为 MIT，
-Copyright © 2021-present Shigma），见 `vendor/LICENSE.*.txt`。
+Copyright © 2021-present Shigma），见 [NOTICE.md](NOTICE.md) 与 `vendor/LICENSE.*.txt`。

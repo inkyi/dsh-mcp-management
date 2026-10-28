@@ -1,5 +1,5 @@
 {
-  "name": "dsh-mcp-management",
+  "name": "@inkyi/dsh-mcp-management",
   "version": "1.0.0",
   "description": "Workspace-scoped MCP servers for DeepSeek Harness: each project directory gets its own MCP tools.",
   "icon": "./icon.svg",
@@ -23,6 +23,9 @@
     "url": "https://github.com/inkyi/dsh-mcp-management/issues"
   },
   "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "node": ">=22",
     "dsh": "^0.2.1-rc.3"
@@ -47,7 +50,8 @@
     "locale/*.json",
     "icon.svg",
     "vendor/*.mjs",
-    "vendor/LICENSE*.txt"
+    "vendor/LICENSE*.txt",
+    "NOTICE.md"
   ],
   "dsh": {
     "manifestVersion": 1,

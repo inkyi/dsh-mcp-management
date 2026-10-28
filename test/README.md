@@ -1,6 +1,6 @@
 # Test suite
 
-Offline verification for `dsh-mcp-management`. Everything here runs without a DeepSeek
+Offline verification for `@inkyi/dsh-mcp-management`. Everything here runs without a DeepSeek
 Harness installation, without `npm install`, and without network access; scripts only read plugin
 files and write inside `test/tmp/` (removed on exit, except the fixture call log).
 
@@ -25,10 +25,12 @@ Validates the bundle wiring that a typo would otherwise only expose at install t
   `LICENSE`, `README.md`) exist and are non-empty;
 - `README.md` / `README.zh.md` carry a copy-paste `dsh plugin --profile web add …` install command,
   which DSH plugin marketplaces (such as dsh-plugin.org) require;
+- `LICENSE` stays a plain MIT text (so GitHub detects the license) and `NOTICE.md` carries the
+  vendored Schemastery/Cosmokit notices;
 - `package.json`: name, `type: module`, MIT license, GitHub repository, semver version, top-level
   `icon`, exports map (including `./package.json`), `files` list, `engines.node` / `engines.dsh`, and
   the `dsh.manifestVersion` / `dsh.bundle.patch` / `dsh.client` declarations;
-- `cordis.patch.yml`: an `- insert:` row with `id: mcp-management` and `name: dsh-mcp-management`;
+- `cordis.patch.yml`: an `- insert:` row with `id: mcp-management` and `name: @inkyi/dsh-mcp-management`;
 - locale dictionaries parse, carry non-empty `meta.title`/`meta.description`, and share the same key
   set across languages;
 - `icon.svg` parses as SVG and is below the 256 KiB limit;

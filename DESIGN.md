@@ -24,12 +24,13 @@
 | `index.js` | Host 插件（Loader entry 的 Node 端） |
 | `client.js` | Web 设置页（浏览器端模块） |
 | `vendor/` | 内置的 Schemastery/Cosmokit ESM 构建（MIT） |
+| `NOTICE.md` | 内置第三方代码的许可声明（`LICENSE` 保持纯 MIT 文本，便于 GitHub 识别） |
 | `test/` | 离线夹具、单测、静态检查与冒烟脚本 |
 | `DESIGN.md` | 本设计文档 |
 
 已固定的标识：
 
-- 包名 `dsh-mcp-management`
+- 包名（npm 发布名）：`@inkyi/dsh-mcp-management`；GitHub 仓库名仍为 `dsh-mcp-management`
 - `package.json` 清单元数据：`dsh.manifestVersion: 1`、`dsh.bundle.patch`、`dsh.client`、
   `engines.dsh`、`exports["./package.json"]`、顶层 `icon` 字段
 - Loader entry id：`mcp-management`（设置页通过这个 id 读写 config）
@@ -205,7 +206,7 @@ export async function apply(ctx, config) { ... }
 
 ```js
 window.__ModuleLoader__.load({
-  id: 'dsh-mcp-management',
+  id: '@inkyi/dsh-mcp-management',
   factory(require) {
     const React = require('react')
     const h = React.createElement
