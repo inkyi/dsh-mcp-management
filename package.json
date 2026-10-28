@@ -13,14 +13,14 @@
     "workspace"
   ],
   "license": "MIT",
-  "author": "YOUR_GITHUB_USERNAME",
+  "author": "inkyi",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/YOUR_GITHUB_USERNAME/dsh-mcp-management.git"
+    "url": "git+https://github.com/inkyi/dsh-mcp-management.git"
   },
-  "homepage": "https://github.com/YOUR_GITHUB_USERNAME/dsh-mcp-management#readme",
+  "homepage": "https://github.com/inkyi/dsh-mcp-management#readme",
   "bugs": {
-    "url": "https://github.com/YOUR_GITHUB_USERNAME/dsh-mcp-management/issues"
+    "url": "https://github.com/inkyi/dsh-mcp-management/issues"
   },
   "type": "module",
   "engines": {

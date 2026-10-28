@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D22-brightgreen.svg)](package.json)
-[![CI](https://github.com/YOUR_GITHUB_USERNAME/dsh-mcp-management/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_GITHUB_USERNAME/dsh-mcp-management/actions/workflows/ci.yml)
+[![CI](https://github.com/inkyi/dsh-mcp-management/actions/workflows/ci.yml/badge.svg)](https://github.com/inkyi/dsh-mcp-management/actions/workflows/ci.yml)
 
 中文说明：[README.zh.md](README.zh.md)
 
@@ -68,7 +68,7 @@ re-bind live Agents without reloading the plugin.
 1. Clone this repository somewhere stable:
 
    ```bash
-   git clone https://github.com/YOUR_GITHUB_USERNAME/dsh-mcp-management.git
+   git clone https://github.com/inkyi/dsh-mcp-management.git
    ```
 
 2. From a DeepSeek Harness session, install the directory as a bundle (the Harness links it into the

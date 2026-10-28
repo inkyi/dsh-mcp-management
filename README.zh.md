@@ -5,7 +5,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D22-brightgreen.svg)](package.json)
-[![CI](https://github.com/YOUR_GITHUB_USERNAME/dsh-mcp-management/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_GITHUB_USERNAME/dsh-mcp-management/actions/workflows/ci.yml)
+[![CI](https://github.com/inkyi/dsh-mcp-management/actions/workflows/ci.yml/badge.svg)](https://github.com/inkyi/dsh-mcp-management/actions/workflows/ci.yml)
 
 English: [README.md](README.md)
 
@@ -59,7 +59,7 @@ volatile 字段，变更时通过 `loader/volatile-update` 重新解析并重挂
 1. 克隆仓库到固定位置：
 
    ```bash
-   git clone https://github.com/YOUR_GITHUB_USERNAME/dsh-mcp-management.git
+   git clone https://github.com/inkyi/dsh-mcp-management.git
    ```
 
 2. 在 DeepSeek Harness 会话里把它作为 bundle 安装（Harness 会链接目录并重组 profile）：
