@@ -6,6 +6,7 @@
  *   - package.json fields (name/type/exports/files/icon/engines and the
  *     dsh.manifestVersion / dsh.bundle.patch / dsh.client declarations)
  *   - cordis.patch.yml entry id + package name
+ *   - a copy-paste install command in both READMEs (plugin-marketplace requirement)
  *   - locale/en.json + locale/zh.json have meta.title / meta.description
  *   - icon.svg parses (xmllint when available, lightweight fallback) and is < 256 KiB
  *   - index.js / client.js exist and pass `node --input-type=module --check`
@@ -77,6 +78,19 @@ for (const file of REQUIRED_FILES) present.set(file, checkFile(file))
 // Design document: advisory for the bundle itself.
 if (exists('DESIGN.md')) pass('file exists: DESIGN.md')
 else warn('file exists: DESIGN.md', 'design document missing')
+
+// ---------------------------------------------------------------------------
+// 1b. Install command (also required by DSH plugin marketplaces)
+// ---------------------------------------------------------------------------
+for (const readme of ['README.md', 'README.zh.md']) {
+  if (!exists(readme)) {
+    fail(`file exists: ${readme}`, 'missing')
+    continue
+  }
+  const command = /dsh plugin --profile web add \S+/.exec(readText(readme))
+  if (command !== null) pass(`${readme} has a copy-paste install command`, command[0])
+  else fail(`${readme} has a copy-paste install command`, 'expected "dsh plugin --profile web add <package>"')
+}
 
 // ---------------------------------------------------------------------------
 // 2. package.json

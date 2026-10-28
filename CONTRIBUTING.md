@@ -27,8 +27,9 @@ npm run fixture   # MCP stdio fixture smoke
 npm run sdk-smoke # optional, real MCP SDK handshake (skips when unavailable)
 ```
 
-To try the plugin inside a DeepSeek Harness profile, install this directory as a bundle
-(`plugin_manager install_bundle` with the absolute path from inside a DSH session). Edits are picked
+To try the plugin inside a DeepSeek Harness profile, install this directory as a bundle with
+`dsh plugin --profile web add link:$PWD` (from inside a DSH session,
+`plugin_manager action=install_bundle target=...` works too). Edits are picked
 up after the profile recomposes (for example, after saving a setting), because a linked package is
 re-read on recomposition.
 

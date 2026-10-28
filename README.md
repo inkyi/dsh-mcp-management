@@ -65,25 +65,31 @@ re-bind live Agents without reloading the plugin.
 
 ## Install
 
-1. Clone this repository somewhere stable:
+Install the plugin into a DeepSeek Harness profile with `dsh plugin`. It works straight from GitHub,
+so no npm release is required:
 
-   ```bash
-   git clone https://github.com/inkyi/dsh-mcp-management.git
-   ```
+```bash
+dsh plugin --profile web add github:inkyi/dsh-mcp-management
+```
 
-2. From a DeepSeek Harness session, install the directory as a bundle (the Harness links it into the
-   active profile and recomposes):
+For a local clone (development — the profile links the directory and re-reads it after a
+recomposition):
 
-   ```
-   plugin_manager action=install_bundle target=/absolute/path/to/dsh-mcp-management
-   ```
+```bash
+git clone https://github.com/inkyi/dsh-mcp-management.git
+dsh plugin --profile web add link:/absolute/path/to/dsh-mcp-management
+```
 
-   That is the only install mechanism; do not copy files into `~/.dsh` by hand.
+The command installs the package into the profile, appends it to `dsh.profile.bundles`, and applies
+the bundle patch in [`cordis.patch.yml`](cordis.patch.yml); restart `dsh web` if it is already
+running. The desktop app manages its reserved `desktop` profile from **Plugins** in the sidebar —
+inside a session `plugin_manager action=install_bundle target=...` does the same.
 
-3. Open **Settings → MCP Management**. If the navigation entry is missing, refresh the page once
-   (the client half is loaded with the page).
+Open **Settings → MCP Management**. If the navigation entry is missing, refresh the page once
+(the client half is loaded with the page).
 
-Uninstall with `plugin_manager action=remove_bundle target=dsh-mcp-management`.
+Uninstall with `dsh plugin --profile web remove dsh-mcp-management` (or, inside a session,
+`plugin_manager action=remove_bundle target=dsh-mcp-management`).
 
 ## Usage
 

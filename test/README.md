@@ -23,6 +23,8 @@ Validates the bundle wiring that a typo would otherwise only expose at install t
 
 - required files (`index.js`, `client.js`, `package.json`, `cordis.patch.yml`, locales, `icon.svg`,
   `LICENSE`, `README.md`) exist and are non-empty;
+- `README.md` / `README.zh.md` carry a copy-paste `dsh plugin --profile web add …` install command,
+  which DSH plugin marketplaces (such as dsh-plugin.org) require;
 - `package.json`: name, `type: module`, MIT license, GitHub repository, semver version, top-level
   `icon`, exports map (including `./package.json`), `files` list, `engines.node` / `engines.dsh`, and
   the `dsh.manifestVersion` / `dsh.bundle.patch` / `dsh.client` declarations;

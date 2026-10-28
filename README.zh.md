@@ -56,23 +56,28 @@ volatile 字段，变更时通过 `loader/volatile-update` 重新解析并重挂
 
 ## 安装
 
-1. 克隆仓库到固定位置：
+用 `dsh plugin` 把插件装进 DeepSeek Harness 的 profile。可以直接从 GitHub 安装，不需要 npm 发布：
 
-   ```bash
-   git clone https://github.com/inkyi/dsh-mcp-management.git
-   ```
+```bash
+dsh plugin --profile web add github:inkyi/dsh-mcp-management
+```
 
-2. 在 DeepSeek Harness 会话里把它作为 bundle 安装（Harness 会链接目录并重组 profile）：
+本地克隆开发时（profile 会链接该目录，重组后重新读取）：
 
-   ```
-   plugin_manager action=install_bundle target=/绝对路径/dsh-mcp-management
-   ```
+```bash
+git clone https://github.com/inkyi/dsh-mcp-management.git
+dsh plugin --profile web add link:/绝对路径/dsh-mcp-management
+```
 
-   这是唯一安装方式，不要手动往 `~/.dsh` 里复制文件。
+命令会把包装进 profile、追加到 `dsh.profile.bundles`，并应用包内
+[`cordis.patch.yml`](cordis.patch.yml) 这一层补丁；`dsh web` 已在运行的话重启一次。桌面应用保留的
+`desktop` profile 用侧栏 **插件** 页管理，会话内也可以用
+`plugin_manager action=install_bundle target=...` 安装。
 
-3. 打开 **设置 → MCP 管理**。若设置导航里暂时没有这一项，刷新一次页面（客户端模块随页面加载）。
+打开 **设置 → MCP 管理**。若导航里暂时没有这一项，刷新一次页面（客户端模块随页面加载）。
 
-卸载：`plugin_manager action=remove_bundle target=dsh-mcp-management`。
+卸载：`dsh plugin --profile web remove dsh-mcp-management`（或会话内
+`plugin_manager action=remove_bundle target=dsh-mcp-management`）。
 
 ## 使用
 
