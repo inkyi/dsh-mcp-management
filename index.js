@@ -15,7 +15,7 @@
  * The pure resolution helpers at the bottom are exported so they can be
  * unit-tested without a Cordis runtime.
  *
- * @module dsh-plugin-mcp-workspaces
+ * @module dsh-plugin-mcp-management
  */
 
 import { readFile, realpath, stat } from 'node:fs/promises'

@@ -1,6 +1,6 @@
 # Test suite
 
-Offline verification for `dsh-plugin-mcp-workspaces`. Everything here runs without a DeepSeek
+Offline verification for `dsh-plugin-mcp-management`. Everything here runs without a DeepSeek
 Harness installation, without `npm install`, and without network access; scripts only read plugin
 files and write inside `test/tmp/` (removed on exit, except the fixture call log).
 
@@ -25,7 +25,7 @@ Validates the bundle wiring that a typo would otherwise only expose at install t
   `LICENSE`, `README.md`) exist and are non-empty;
 - `package.json`: name, `type: module`, MIT license, GitHub repository, semver version, exports map,
   `files` list, and the `dsh.bundle.patch` / `dsh.client` declarations;
-- `cordis.patch.yml`: an `- insert:` row with `id: mcp-workspaces` and `name: dsh-plugin-mcp-workspaces`;
+- `cordis.patch.yml`: an `- insert:` row with `id: mcp-workspaces` and `name: dsh-plugin-mcp-management`;
 - locale dictionaries parse, carry non-empty `meta.title`/`meta.description`, and share the same key
   set across languages;
 - `icon.svg` parses as SVG and is below the 256 KiB limit;

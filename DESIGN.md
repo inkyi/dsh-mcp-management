@@ -1,4 +1,4 @@
-# 设计契约：MCP 管理（按工作区管理 MCP，dsh-plugin-mcp-workspaces）
+# 设计契约：MCP 管理（按工作区管理 MCP，dsh-plugin-mcp-management）
 
 > 本文件是本次开发的唯一契约来源。Host 端（`index.js`）、Client 端（`client.js`）与验证（`test/`）
 > 必须按此实现；如需变更契约，先修改本文件并在 PR 中说明。
@@ -29,7 +29,7 @@
 
 已固定的标识：
 
-- 包名 `dsh-plugin-mcp-workspaces`
+- 包名 `dsh-plugin-mcp-management`
 - Loader entry id：`mcp-workspaces`（设置页通过这个 id 读写 config）
 - 设置页 slot：`settings.section`，注册 id `mcp-workspaces`，order `16`
 - 设置页 locale namespace：`settings.mcpWorkspaces`
@@ -203,7 +203,7 @@ export async function apply(ctx, config) { ... }
 
 ```js
 window.__ModuleLoader__.load({
-  id: 'dsh-plugin-mcp-workspaces',
+  id: 'dsh-plugin-mcp-management',
   factory(require) {
     const React = require('react')
     const h = React.createElement
@@ -320,7 +320,7 @@ ctx.effect(() => ctx.configForms.whileServed(['mcp-workspaces'], () =>
 3. `package.json` 的 `files` 增加 `vendor/*.mjs` 与 `vendor/LICENSE*.txt`。
 4. **显示名称改为「MCP 管理」（英文 MCP Management）**：更新 `locale/{zh,en}.json` 的
    `meta.title`、`client.js` 字典的 `title`、README/DESIGN 标题与设置路径引用。内部标识保持不变
-   （包名 `dsh-plugin-mcp-workspaces`、entry id `mcp-workspaces`、Agent 工具名
+   （包名 `dsh-plugin-mcp-management`、entry id `mcp-workspaces`、Agent 工具名
    `mcp_workspaces`、配置字段名），避免破坏已写入的 profile 配置与工具调用历史。
 
 ### 端到端结果（本机 `desktop` profile，真实安装）

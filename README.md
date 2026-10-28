@@ -1,4 +1,4 @@
-# dsh-plugin-mcp-workspaces
+# dsh-plugin-mcp-management
 
 > **MCP Management for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)** — give
 > every workspace (project directory) its own MCP servers, and only expose those tools to sessions
@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D22-brightgreen.svg)](package.json)
-[![CI](https://github.com/YOUR_GITHUB_USERNAME/dsh-plugin-mcp-workspaces/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_GITHUB_USERNAME/dsh-plugin-mcp-workspaces/actions/workflows/ci.yml)
+[![CI](https://github.com/YOUR_GITHUB_USERNAME/dsh-plugin-mcp-management/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_GITHUB_USERNAME/dsh-plugin-mcp-management/actions/workflows/ci.yml)
 
 中文说明：[README.zh.md](README.zh.md)
 
@@ -68,14 +68,14 @@ re-bind live Agents without reloading the plugin.
 1. Clone this repository somewhere stable:
 
    ```bash
-   git clone https://github.com/YOUR_GITHUB_USERNAME/dsh-plugin-mcp-workspaces.git
+   git clone https://github.com/YOUR_GITHUB_USERNAME/dsh-plugin-mcp-management.git
    ```
 
 2. From a DeepSeek Harness session, install the directory as a bundle (the Harness links it into the
    active profile and recomposes):
 
    ```
-   plugin_manager action=install_bundle target=/absolute/path/to/dsh-plugin-mcp-workspaces
+   plugin_manager action=install_bundle target=/absolute/path/to/dsh-plugin-mcp-management
    ```
 
    That is the only install mechanism; do not copy files into `~/.dsh` by hand.
@@ -83,7 +83,7 @@ re-bind live Agents without reloading the plugin.
 3. Open **Settings → MCP Management**. If the navigation entry is missing, refresh the page once
    (the client half is loaded with the page).
 
-Uninstall with `plugin_manager action=remove_bundle target=dsh-plugin-mcp-workspaces`.
+Uninstall with `plugin_manager action=remove_bundle target=dsh-plugin-mcp-management`.
 
 ## Usage
 
@@ -156,7 +156,7 @@ and take effect on the next plugin reload:
 
 ```yaml
 - id: mcp-workspaces
-  name: 'dsh-plugin-mcp-workspaces'
+  name: 'dsh-plugin-mcp-management'
   config:
     fileConfigEnabled: true        # read <workspace>/.dsh/mcp.json (default true)
     fileConfigPath: .dsh/mcp.json  # location inside the workspace

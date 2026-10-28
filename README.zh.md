@@ -1,11 +1,11 @@
-# dsh-plugin-mcp-workspaces
+# dsh-plugin-mcp-management
 
 > **DeepSeek Harness 的 MCP 管理插件**：让**每个工作区（项目目录）使用自己的 MCP 服务器**，并且
 > 只有运行在该工作区的会话才能看到对应的 `mcp__<serverName>__<tool>` 工具。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D22-brightgreen.svg)](package.json)
-[![CI](https://github.com/YOUR_GITHUB_USERNAME/dsh-plugin-mcp-workspaces/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_GITHUB_USERNAME/dsh-plugin-mcp-workspaces/actions/workflows/ci.yml)
+[![CI](https://github.com/YOUR_GITHUB_USERNAME/dsh-plugin-mcp-management/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_GITHUB_USERNAME/dsh-plugin-mcp-management/actions/workflows/ci.yml)
 
 English: [README.md](README.md)
 
@@ -59,20 +59,20 @@ volatile 字段，变更时通过 `loader/volatile-update` 重新解析并重挂
 1. 克隆仓库到固定位置：
 
    ```bash
-   git clone https://github.com/YOUR_GITHUB_USERNAME/dsh-plugin-mcp-workspaces.git
+   git clone https://github.com/YOUR_GITHUB_USERNAME/dsh-plugin-mcp-management.git
    ```
 
 2. 在 DeepSeek Harness 会话里把它作为 bundle 安装（Harness 会链接目录并重组 profile）：
 
    ```
-   plugin_manager action=install_bundle target=/绝对路径/dsh-plugin-mcp-workspaces
+   plugin_manager action=install_bundle target=/绝对路径/dsh-plugin-mcp-management
    ```
 
    这是唯一安装方式，不要手动往 `~/.dsh` 里复制文件。
 
 3. 打开 **设置 → MCP 管理**。若设置导航里暂时没有这一项，刷新一次页面（客户端模块随页面加载）。
 
-卸载：`plugin_manager action=remove_bundle target=dsh-plugin-mcp-workspaces`。
+卸载：`plugin_manager action=remove_bundle target=dsh-plugin-mcp-management`。
 
 ## 使用
 
@@ -149,7 +149,7 @@ mcp_workspaces { "action": "setWorkspace", "workspacePath": "/path", "servers": 
 
   ```yaml
   - id: mcp-workspaces
-    name: 'dsh-plugin-mcp-workspaces'
+    name: 'dsh-plugin-mcp-management'
     config:
       fileConfigEnabled: true        # 是否读取 <workspace>/.dsh/mcp.json（默认 true）
       fileConfigPath: .dsh/mcp.json  # 工作区内的相对路径
