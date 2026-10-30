@@ -12,12 +12,15 @@
  *   3. asserts `locale.register('settings.mcpManagement', { zh, en })` happened
  *      and that zh/en leaf keys match,
  *   4. asserts the `settings.section` slot registration (id/order/locale/label),
- *   5. checks every `t("key")` reference in client.js exists in the dictionaries,
- *   6. asserts workspace add prefers the in-window Electron chooser bridge and,
+ *   5. renders the page function once with the injected hook face and asserts a
+ *      ready form snapshot does not fall back to the “plugin not loaded” banner,
+ *   6. checks every `t("key")` reference in client.js exists in the dictionaries,
+ *   7. asserts workspace add prefers the in-window Electron chooser bridge and,
  *      without that bridge, opens the page's own path/existing-workspace dialog
  *      instead of the unusable Host picker.
  *
- * This is NOT a render test: React components are never mounted.
+ * The page render is shallow (no React mount): nested components are created as
+ * elements, not rendered.
  *
  * Usage: node test/client-registration-smoke.mjs
  * Exit codes: 0 = pass, 1 = fail.
@@ -209,6 +212,27 @@ try {
     assert.equal(typeof injected[action], 'function', `slot inject() must expose action ${action}`)
   }
 
+  // 2b. Render the page once with the real injected prop names: the page must
+  //     consume the `useMcpManagement` hook face (not a stale `useMcpWorkspaces`
+  //     prop, which silently falls back to the "plugin not loaded" banner), and
+  //     a ready form snapshot must render the editor sections instead.
+  const readySnapshot = injected.hooks.mcpManagement.getSnapshot()
+  assert.equal(readySnapshot.status, 'ready')
+  const rendered = slotComponent({
+    ...injected,
+    t: (key) => (key === 'title' ? 'MCP 管理' : key),
+    useMcpManagement: (select) => select(readySnapshot),
+    useWorkspaces: (select) => select({ items: [] }),
+    close: () => {},
+  })
+  const renderedText = JSON.stringify(rendered)
+  assert.ok(renderedText.includes('MCP 管理'), 'page must render its title from t("title")')
+  assert.ok(renderedText.includes('mcpw-root'), 'page must render its root section')
+  assert.ok(
+    !renderedText.includes('"unavailable"'),
+    'a ready form snapshot must not render the "plugin not loaded" banner (check the injected hook prop name)',
+  )
+
   // 3. Every t("key") literal in client.js must exist in both dictionaries.
   const tKeyPattern = /\bt\(\s*"([^"]+)"\s*\)/g
   const usedKeys = new Set()
@@ -281,7 +305,7 @@ try {
     },
     tKeysChecked: usedKeys.size,
     directoryPicker: { bridgePreferred: true, browserDialog: true, writes: formWrites.length },
-    note: 'registration path only — React components were not rendered',
+    renderedSection: 'page function rendered with the injected hook face',
   }, null, 2))
 } finally {
   delete globalThis.__DSH_DIRECTORY_PICKER__

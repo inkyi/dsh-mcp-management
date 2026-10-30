@@ -1,6 +1,6 @@
 {
   "name": "@inkyi/dsh-mcp-management",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Workspace-scoped MCP servers for DeepSeek Harness: each project directory gets its own MCP tools.",
   "icon": "./icon.svg",
   "keywords": [
@@ -32,7 +32,7 @@
   },
   "scripts": {
     "check": "node test/check.mjs",
-    "test": "node test/check.mjs && node --test test/unit.test.mjs",
+    "test": "node test/check.mjs && node --test test/unit.test.mjs && node test/client-registration-smoke.mjs",
     "fixture": "node test/fixture-smoke.mjs",
     "sdk-smoke": "node test/sdk-connect-smoke.mjs"
   },

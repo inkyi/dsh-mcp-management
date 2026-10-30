@@ -1470,10 +1470,10 @@ window.__ModuleLoader__.load({
 		function selectWorkspaceItems(snapshot) {
 			return snapshot !== null && typeof snapshot === "object" && Array.isArray(snapshot.items) ? snapshot.items : EMPTY_LIST;
 		}
-		/** The Settings → MCP Workspaces page. */
+		/** The Settings → MCP Management page. */
 		function Page(props) {
 			const t = typeof props.t === "function" ? props.t : (key) => key;
-			const useSnapshot = props.useMcpWorkspaces;
+			const useSnapshot = props.useMcpManagement;
 			// The injected hook exists for the whole lifetime of this page; the guard is
 			// only a defensive fallback for a partially composed deployment.
 			const state = typeof useSnapshot === "function" ? useSnapshot(selectSnapshot) : NO_STATE;

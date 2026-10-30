@@ -4,6 +4,16 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] — 2026-10-30
+
+### Fixed
+
+- Settings → MCP Management always showed “This plugin is not loaded, so its settings cannot be
+  shown right now.” even while the plugin was loaded: the page read the pre-rename
+  `useMcpWorkspaces` prop instead of the injected `useMcpManagement` hook face, so it never saw
+  the Host config form. The page now binds the correct hook and renders the workspace/server
+  editors. A render regression check keeps the prop name in sync with `hooks.mcpManagement`.
+
 ## [1.0.0] — 2026-10-28
 
 Initial release.

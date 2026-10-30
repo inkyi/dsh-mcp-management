@@ -27,7 +27,7 @@
 dsh plugin --profile web add @inkyi/dsh-mcp-management
 ```
 
-- npm：`@inkyi/dsh-mcp-management@1.0.0`（已发布）
+- npm：`@inkyi/dsh-mcp-management@1.0.1`（已发布）
 - 备选（跟踪仓库 main）：`dsh plugin --profile web add github:inkyi/dsh-mcp-management`
 
 ## 兼容与运行要求
@@ -81,7 +81,7 @@ MIT（内置 Schemastery 3.18.5、Cosmokit 1.8.6，均为 MIT，见 [NOTICE.md](
 
 | 项目 | 核对方式 | 结果 |
 |---|---|---|
-| npm 包已发布 | `registry.npmjs.org/@inkyi%2Fdsh-mcp-management` | `1.0.0`（latest） |
+| npm 包已发布 | `registry.npmjs.org/@inkyi%2Fdsh-mcp-management` | `1.0.1`（latest） |
 | 仓库公开 | GitHub API `repos/inkyi/dsh-mcp-management` | `visibility: public` |
 | topic `dsh-plugin` | GitHub API `topics` | 已包含 |
 | README 安装命令 | [README.zh.md](README.zh.md#L59-L63) | 已包含 |
