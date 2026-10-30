@@ -6,6 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D22-brightgreen.svg)](package.json)
 [![CI](https://github.com/inkyi/dsh-mcp-management/actions/workflows/ci.yml/badge.svg)](https://github.com/inkyi/dsh-mcp-management/actions/workflows/ci.yml)
+[![Listed on dsh-plugin.org](https://dsh-plugin.org/badges/listed.svg)](https://dsh-plugin.org/plugins/inkyi/dsh-mcp-management)
 
 English: [README.md](README.md)
 
@@ -61,6 +62,9 @@ volatile 字段，变更时通过 `loader/volatile-update` 重新解析并重挂
 ```bash
 dsh plugin --profile web add @inkyi/dsh-mcp-management
 ```
+
+本插件已在社区插件集市上架（Verified，2026-10-29）：
+[dsh-plugin.org → inkyi/dsh-mcp-management](https://dsh-plugin.org/plugins/inkyi/dsh-mcp-management)。
 
 npm 包发布之前（或想直接跟踪仓库 main），可以从 GitHub 源码安装：
 

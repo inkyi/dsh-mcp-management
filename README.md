@@ -7,6 +7,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D22-brightgreen.svg)](package.json)
 [![CI](https://github.com/inkyi/dsh-mcp-management/actions/workflows/ci.yml/badge.svg)](https://github.com/inkyi/dsh-mcp-management/actions/workflows/ci.yml)
+[![Listed on dsh-plugin.org](https://dsh-plugin.org/badges/listed.svg)](https://dsh-plugin.org/plugins/inkyi/dsh-mcp-management)
 
 中文说明：[README.zh.md](README.zh.md)
 
@@ -71,6 +72,9 @@ DSH Plugin Center uses:
 ```bash
 dsh plugin --profile web add @inkyi/dsh-mcp-management
 ```
+
+The plugin is listed in the community hub (Verified, 2026-10-29):
+[dsh-plugin.org → inkyi/dsh-mcp-management](https://dsh-plugin.org/plugins/inkyi/dsh-mcp-management).
 
 Before the npm release exists (or to track the repository directly), install straight from GitHub:
 
